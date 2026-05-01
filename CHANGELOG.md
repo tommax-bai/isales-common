@@ -4,6 +4,19 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.1.1] — 2026-05-01
+
+### Fixed
+
+- `isales_common.providers.testing` no longer imports `pytest` at module
+  top, so downstream production services can use the in-memory mocks
+  without taking on a `pytest` dependency. The pytest fixtures moved to
+  `isales_common.providers.testing.fixtures`; downstream test suites can
+  re-export them in their own `conftest.py`.
+- `utils.phone.normalize` now wraps the `phonenumbers.format_number`
+  result in `str()` to satisfy strict mypy (1.8) under the
+  `phonenumbers.*` `ignore_missing_imports` override.
+
 ## [v0.1.0] — 2026-05-01
 
 Initial release. Establishes the shared foundation for the seven-repo iSales
@@ -58,4 +71,5 @@ platform per the OpenSpec `init-isales-common` change.
   `op.drop_constraint` calls at the start of the downgrade — alembic
   autogenerate did not handle these inline.
 
+[v0.1.1]: https://github.com/tommax-bai/isales-common/releases/tag/v0.1.1
 [v0.1.0]: https://github.com/tommax-bai/isales-common/releases/tag/v0.1.0

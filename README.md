@@ -31,7 +31,7 @@ pre-commit install
 ```toml
 [project]
 dependencies = [
-  "isales-common @ git+ssh://git@github.com/tommax-bai/isales-common.git@v0.1.0",
+  "isales-common @ git+ssh://git@github.com/tommax-bai/isales-common.git@v0.1.1",
 ]
 ```
 
@@ -99,6 +99,6 @@ from isales_common.providers.testing import mock_llm_provider  # pytest fixture
 
 ## 版本与演进
 
-- 当前版本：`v0.1.0`
+- 当前版本：`v0.1.1`
 - 消息 schema 版本：`CURRENT_SCHEMA_VERSION = 1`
 - 演进规则见 `message-contract` spec § Requirement: 演进规则；破坏性变更 MUST 走 OpenSpec change proposal。

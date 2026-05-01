@@ -1,17 +1,14 @@
-"""In-memory provider mocks + pytest fixtures.
+"""In-memory provider mocks usable from any context.
 
 Spec: provider-abc § Requirement: Provider ABC 契约可被 mock 测试.
 
-Usage in another repo's ``conftest.py``::
-
-    from isales_common.providers.testing import (
-        mock_asr_provider, mock_tts_provider, mock_llm_provider,
-    )
+The mocks have no test-runner dependency so production code (e.g. running a
+local dev profile against fixed responses) can import them too. pytest
+fixtures live in :mod:`isales_common.providers.testing.fixtures` to keep
+``pytest`` strictly optional at import time.
 """
 
 from __future__ import annotations
-
-import pytest
 
 from isales_common.providers.testing.asr import MockASRProvider
 from isales_common.providers.testing.llm import MockLLMProvider, RecordedChatCall
@@ -22,22 +19,4 @@ __all__ = [
     "MockLLMProvider",
     "MockTTSProvider",
     "RecordedChatCall",
-    "mock_asr_provider",
-    "mock_llm_provider",
-    "mock_tts_provider",
 ]
-
-
-@pytest.fixture
-def mock_asr_provider() -> MockASRProvider:
-    return MockASRProvider()
-
-
-@pytest.fixture
-def mock_tts_provider() -> MockTTSProvider:
-    return MockTTSProvider()
-
-
-@pytest.fixture
-def mock_llm_provider() -> MockLLMProvider:
-    return MockLLMProvider()

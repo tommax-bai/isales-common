@@ -23,7 +23,7 @@ def normalize(raw: str, default_region: str = "CN") -> str:
         raise PhoneError(f"unparseable phone: {raw!r}") from exc
     if not phonenumbers.is_valid_number(parsed):
         raise PhoneError(f"invalid phone: {raw!r}")
-    return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+    return str(phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164))
 
 
 def is_valid(raw: str, default_region: str = "CN") -> bool:
