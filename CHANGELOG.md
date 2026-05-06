@@ -4,6 +4,26 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.1.2] — 2026-05-06
+
+### Added
+
+- `Device.last_call_at` (nullable `DateTime(timezone=True)`) — the column the
+  `/devices/select` algorithm orders by (NULLS FIRST). Alembic revision
+  `580b817550c8_add_device_last_call_at`.
+- `schemas.device.DeviceSelectRequest` (`campaign_id`) and `DeviceSelectResponse`
+  (`device_id`, `phone_number`) — request/response DTOs for telephony-api's
+  `/devices/select` endpoint, used by scheduler.
+- `utils.jwt.verify_jwt(token, secret) -> dict` — HS256 verifier consumed by
+  every service except isales-api (which signs). `InvalidJWT` raised for
+  expired / mismatched-signature / malformed tokens. Adds `python-jose[cryptography]`
+  dependency. Per the architecture spec, no signing helper is exposed here.
+
+### Notes
+
+- `DeviceUpdate` and `DeviceRead` gained `last_call_at` for symmetry with the
+  new column.
+
 ## [v0.1.1] — 2026-05-01
 
 ### Fixed
@@ -71,5 +91,6 @@ platform per the OpenSpec `init-isales-common` change.
   `op.drop_constraint` calls at the start of the downgrade — alembic
   autogenerate did not handle these inline.
 
+[v0.1.2]: https://github.com/tommax-bai/isales-common/releases/tag/v0.1.2
 [v0.1.1]: https://github.com/tommax-bai/isales-common/releases/tag/v0.1.1
 [v0.1.0]: https://github.com/tommax-bai/isales-common/releases/tag/v0.1.0
