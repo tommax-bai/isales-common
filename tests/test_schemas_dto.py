@@ -54,7 +54,11 @@ from isales_common.schemas.callback import (
     CallbackLogRead,
 )
 from isales_common.schemas.campaign import CampaignCreate, CampaignRead, CampaignUpdate
-from isales_common.schemas.device import DeviceRead
+from isales_common.schemas.device import (
+    DeviceRead,
+    DeviceSelectRequest,
+    DeviceSelectResponse,
+)
 from isales_common.schemas.handoff import HandoffTaskRead
 from isales_common.schemas.jsonb import (
     ExtractionField,
@@ -399,6 +403,7 @@ class TestMiscReadSchemas:
         assert PromptVersionRead.model_validate(orm).is_active is True
 
     def test_device(self):
+        ts = _now()
         orm = Device(
             id=1,
             name="dev1",
@@ -407,10 +412,24 @@ class TestMiscReadSchemas:
             imei="111",
             status=DeviceStatus.IDLE,
             last_seen_at=None,
+            last_call_at=ts,
             created_at=_now(),
             updated_at=_now(),
         )
-        assert DeviceRead.model_validate(orm).status == DeviceStatus.IDLE
+        read = DeviceRead.model_validate(orm)
+        assert read.status == DeviceStatus.IDLE
+        assert read.last_call_at == ts
+
+    def test_device_select_round_trip(self):
+        req = DeviceSelectRequest(campaign_id=42)
+        assert DeviceSelectRequest.model_validate_json(req.model_dump_json()) == req
+        with pytest.raises(ValidationError):
+            DeviceSelectRequest(campaign_id=0)  # gt=0 enforced
+
+        resp = DeviceSelectResponse(device_id=7, phone_number="+8613800138000")
+        assert DeviceSelectResponse.model_validate_json(resp.model_dump_json()) == resp
+        with pytest.raises(ValidationError):
+            DeviceSelectResponse(device_id=7, phone_number="")
 
     def test_sim_card(self):
         orm = SimCard(

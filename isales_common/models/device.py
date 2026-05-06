@@ -26,3 +26,4 @@ class Device(Base, TimestampMixin):
         String(16), nullable=False, default=DeviceStatus.UNKNOWN, index=True
     )
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_call_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

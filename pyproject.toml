@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "isales-common"
-version = "0.1.1"
+version = "0.1.2"
 description = "Shared models, schemas, AI provider ABCs, message contracts, and utilities for the iSales platform"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -18,6 +18,7 @@ dependencies = [
     "redis>=5.0",
     "cryptography>=42.0",
     "phonenumbers>=8.13",
+    "python-jose[cryptography]>=3.3",
 ]
 
 [project.optional-dependencies]
@@ -65,6 +66,10 @@ warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = "phonenumbers.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jose.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

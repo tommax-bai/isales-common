@@ -28,11 +28,29 @@ class DeviceUpdate(AppModel):
     imei: str | None = None
     status: DeviceStatus | None = None
     last_seen_at: datetime | None = None
+    last_call_at: datetime | None = None
 
 
 class DeviceRead(DeviceBase, ORMModel):
     id: int
     status: DeviceStatus
     last_seen_at: datetime | None = None
+    last_call_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class DeviceSelectRequest(AppModel):
+    """Scheduler → telephony-api: request an idle device for a campaign.
+
+    Spec: device-hardware § /devices/select; clarify-stage2-boundaries.
+    """
+
+    campaign_id: int = Field(gt=0)
+
+
+class DeviceSelectResponse(AppModel):
+    """telephony-api → scheduler: the chosen device + its active SIM phone number."""
+
+    device_id: int = Field(gt=0)
+    phone_number: str = Field(min_length=1, max_length=32)
