@@ -1,0 +1,334 @@
+// Cloud-edge control plane for iSales v1.0+.
+//
+// Spec: service-communication § "云-边控制面 (cloud-edge gRPC bidirectional streaming)"
+//       device-hardware § "engine ↔ modem-controller IPC 协议"
+//       architecture   § "Engine session 与 cloud instance co-location"
+//
+// One bidi stream per edge process. Cloud is the gRPC server (engine repo);
+// edge is the gRPC client (telephony repo). Media (PCM audio) does NOT travel
+// over this stream — it goes through Aliyun RTC PaaS on a separate transport.
+//
+// Versioning: package name carries the major version. Add fields by number
+// (proto3 semantics); removing or renumbering MUST go through a new package
+// (isales.cloud_edge.v2). Field numbers <= 15 are reserved for hot-path
+// payloads (1-byte tag); 16+ for cold metadata.
+
+syntax = "proto3";
+
+package isales.cloud_edge.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// =============================================================================
+// Service
+// =============================================================================
+
+service CloudEdge {
+  // Single long-lived bidirectional stream per edge process.
+  //
+  // Client → Server: Edge2Cloud frames (heartbeat / dial_ack / call_event /
+  //                   hardware_alert).
+  // Server → Client: Cloud2Edge frames (heartbeat / dial / cancel /
+  //                   config_update / rtc_credentials / remote_diag).
+  //
+  // Auth: client MUST send `authorization: Bearer <EDGE_DEVICE_TOKEN>` in
+  // initial metadata. Server binds the stream context to the edge_device_id
+  // derived from that token. Token validation failures close the stream with
+  // UNAUTHENTICATED.
+  rpc Bidi(stream Edge2Cloud) returns (stream Cloud2Edge);
+}
+
+// =============================================================================
+// Top-level oneof envelopes
+// =============================================================================
+
+message Edge2Cloud {
+  oneof payload {
+    Heartbeat heartbeat = 1;
+    DialAck dial_ack = 2;
+    CallEvent call_event = 3;
+    HardwareAlert hardware_alert = 4;
+    // 5-15 reserved for future hot-path edge → cloud frames.
+  }
+}
+
+message Cloud2Edge {
+  oneof payload {
+    Heartbeat heartbeat = 1;
+    DialCommand dial = 2;
+    CancelCommand cancel = 3;
+    RtcCredentials rtc_credentials = 4;
+    ConfigUpdate config_update = 5;
+    RemoteDiagnostic remote_diag = 6;
+    // 7-15 reserved for future hot-path cloud → edge frames.
+  }
+}
+
+// =============================================================================
+// Heartbeat (both directions)
+// =============================================================================
+
+// Sent every 30s by the edge; cloud SHOULD echo within its own cadence.
+// Missing edge heartbeats for ≥120s mark all of that edge's devices offline
+// (cloud-side watchdog, see device-hardware spec).
+message Heartbeat {
+  google.protobuf.Timestamp ts = 1;
+
+  // Edge-side summary of locally-attached modems. Cloud uses this to keep
+  // device.last_heartbeat / signal_strength in sync without each call event
+  // having to repeat device state.
+  //
+  // Empty when sent by the cloud (cloud Heartbeat is liveness-only).
+  repeated DeviceHealth devices = 2;
+}
+
+message DeviceHealth {
+  int64 device_id = 1;            // PG device.id (cloud-authoritative).
+  DeviceStatus status = 2;
+  int32 signal_strength = 3;      // AT+CSQ value 0-31; -1 if unknown.
+  google.protobuf.Timestamp last_seen_at = 4;
+}
+
+enum DeviceStatus {
+  DEVICE_STATUS_UNSPECIFIED = 0;
+  DEVICE_STATUS_UNKNOWN = 1;
+  DEVICE_STATUS_DETECTED = 2;
+  DEVICE_STATUS_REGISTERED = 3;
+  DEVICE_STATUS_IDLE = 4;
+  DEVICE_STATUS_DIALING = 5;
+  DEVICE_STATUS_IN_CALL = 6;
+  DEVICE_STATUS_OFFLINE = 7;
+  DEVICE_STATUS_FLAGGED = 8;
+  DEVICE_STATUS_ERROR = 9;
+}
+
+// =============================================================================
+// Cloud → Edge: DialCommand
+// =============================================================================
+
+// Cloud-issued dial. Edge MUST first ACK via DialAck before actually wiring
+// audio; this lets the cloud retry on transport error without re-dialling the
+// modem.
+message DialCommand {
+  // Cloud-generated call identifier. Used as the RTC channel name and as the
+  // correlation id for all subsequent events of this call.
+  string call_id = 1;
+
+  // Which physical modem to use (PG device.id). The cloud picks the device
+  // (cloud-side selection algorithm, see device-hardware § "选 device API").
+  int64 device_id = 2;
+
+  // E.164-formatted callee number.
+  string number = 3;
+
+  // E.164-formatted caller_id (the SIM card phone_number bound to device_id).
+  string caller_id = 4;
+
+  // Aliyun RTC channel name — equals call_id (1-to-1 mapping per design
+  // Decision 2). Included redundantly so the edge can pass it to ARTC SDK
+  // without computing.
+  string rtc_channel = 5;
+
+  // Aliyun RTC token for the edge to JoinChannel as rtc_uid_edge.
+  // Cloud signs with the RTC AppKey (cloud-only secret).
+  string rtc_token = 6;
+
+  // Edge-side RTC uid, e.g. "edge-<call_id>".
+  string rtc_uid_edge = 7;
+
+  // Cloud-side RTC uid the edge can subscribe to to receive TTS audio,
+  // e.g. "engine-<call_id>". Edge subscribes by uid (AudioFormatPcmBeforMixing)
+  // to filter out anyone else who might join the channel.
+  string rtc_uid_engine = 8;
+}
+
+message DialAck {
+  string call_id = 1;
+  bool accepted = 2;
+
+  // If accepted=false, the reason.
+  string reason = 3;
+
+  // Edge-local timestamp of ACK. Diff against cloud send time = one-way
+  // dispatch latency for ops monitoring.
+  google.protobuf.Timestamp ts = 4;
+}
+
+// =============================================================================
+// Cloud → Edge: CancelCommand
+// =============================================================================
+
+// Cancellation of an in-flight call. Triggered by:
+//   - Boss manual hangup (api → engine same-process → cancel).
+//   - Engine session deciding to hang up (e.g. goal achieved).
+//   - Edge-VAD barge-in (A3) is the inverse direction (edge sends CallEvent
+//     with kind=user_speaking_started, cloud cancels in-flight LLM/TTS in
+//     the SAME engine session, no CancelCommand needed).
+message CancelCommand {
+  string call_id = 1;
+
+  // Hint to the edge about why; logged but not branched on.
+  string reason = 2;
+
+  google.protobuf.Timestamp ts = 3;
+}
+
+// =============================================================================
+// Cloud → Edge: RtcCredentials (token refresh)
+// =============================================================================
+
+// Used to refresh the RTC token mid-call if it nears expiry. Reserved for
+// future use — typical RTC tokens last 24h, which exceeds any v1.0 call
+// duration. Edge MUST call ARTC SDK RefreshChannelToken() on receipt.
+message RtcCredentials {
+  string call_id = 1;
+  string rtc_token = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+// =============================================================================
+// Cloud → Edge: ConfigUpdate
+// =============================================================================
+
+// Pushed when boss console changes a setting the edge needs to react to
+// without restarting. Field set is intentionally narrow in v1.0; broader
+// config flows through DB and is read on each call lifecycle event.
+message ConfigUpdate {
+  // The setting that changed. Keep this as a discriminated oneof rather than
+  // a free-form dict so unknown configs are caught at compile time.
+  oneof change {
+    LogLevelUpdate log_level = 1;
+    HeartbeatIntervalUpdate heartbeat_interval = 2;
+  }
+}
+
+message LogLevelUpdate {
+  // One of "DEBUG" / "INFO" / "WARNING" / "ERROR".
+  string level = 1;
+}
+
+message HeartbeatIntervalUpdate {
+  // Seconds. Edge SHOULD clamp to [10, 300].
+  int32 interval_seconds = 1;
+}
+
+// =============================================================================
+// Cloud → Edge: RemoteDiagnostic (reserved for D2)
+// =============================================================================
+
+// Asks the edge to bundle its current state + recent logs and upload to OSS.
+// Body intentionally minimal in v1.0; D2 `hardware-observability` expands.
+message RemoteDiagnostic {
+  string request_id = 1;
+  // OSS pre-signed PUT URL the edge should upload its diagnostic bundle to.
+  string upload_url = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+// =============================================================================
+// Edge → Cloud: CallEvent
+// =============================================================================
+
+// Anything that happens during a call's lifetime: progress, audio path
+// status, hangup. The `kind` oneof keeps each event's payload typed rather
+// than smuggling everything through a string-keyed map.
+message CallEvent {
+  string call_id = 1;
+  google.protobuf.Timestamp ts = 2;
+
+  oneof kind {
+    Ringing ringing = 10;
+    Connected connected = 11;
+    RemoteHangup remote_hangup = 12;
+    DeviceError device_error = 13;
+    UserSpeakingStarted user_speaking_started = 14;  // A3 will populate.
+    UserSpeakingStopped user_speaking_stopped = 15;  // A3 will populate.
+  }
+}
+
+message Ringing {
+  // Empty — the event of receiving "RING" is itself the signal.
+}
+
+message Connected {
+  // Empty — call_id + ts is the connection signal.
+}
+
+message RemoteHangup {
+  // Canonical hangup cause from device-hardware § "GSM hangup_cause 映射".
+  // Repeats the isales_common.enums.HangupCause set; cloud worker translates.
+  HangupCause cause = 1;
+
+  // Raw vendor-reported cause string, for debugging only. Cloud-side retry
+  // logic MUST NOT branch on this — only on `cause` above.
+  string vendor_raw = 2;
+}
+
+enum HangupCause {
+  HANGUP_CAUSE_UNSPECIFIED = 0;
+  HANGUP_CAUSE_NO_ANSWER = 1;
+  HANGUP_CAUSE_USER_BUSY = 2;
+  HANGUP_CAUSE_NETWORK_OUT_OF_ORDER = 3;
+  HANGUP_CAUSE_NORMAL_CLEARING = 4;
+  HANGUP_CAUSE_CALL_REJECTED = 5;
+}
+
+message DeviceError {
+  int64 device_id = 1;
+  // Free-form short code, e.g. "signal_lost" / "at_timeout" / "pcm_starved".
+  string code = 2;
+  string detail = 3;
+}
+
+message UserSpeakingStarted {
+  // A3 will fill in VAD detection metadata; left as a marker in v1.0.
+}
+
+message UserSpeakingStopped {
+  // A3 will fill in VAD detection metadata; left as a marker in v1.0.
+}
+
+// =============================================================================
+// Edge → Cloud: HardwareAlert
+// =============================================================================
+
+// Out-of-band hardware health events, NOT tied to any specific call. Cloud
+// worker persists these to PG for boss-console reporting (C1 / D2).
+message HardwareAlert {
+  google.protobuf.Timestamp ts = 1;
+  int64 device_id = 2;  // 0 if alert is process-wide, not device-specific.
+
+  oneof kind {
+    SignalLost signal_lost = 10;
+    SimArrears sim_arrears = 11;
+    ModemInitFailed modem_init_failed = 12;
+    AudioBufferStalled audio_buffer_stalled = 13;
+    SimChanged sim_changed = 14;
+  }
+}
+
+message SignalLost {
+  int32 last_signal_strength = 1;  // AT+CSQ value when last seen.
+}
+
+message SimArrears {
+  // Free-form balance hint (USSD response varies by carrier).
+  string balance_text = 1;
+}
+
+message ModemInitFailed {
+  // Which AT command stage failed: "CCID" / "CGSN" / "ATH" / etc.
+  string stage = 1;
+  string detail = 2;
+}
+
+message AudioBufferStalled {
+  // Direction: "upstream" (modem → audio-bridge) or "downstream".
+  string direction = 1;
+  int32 stalled_ms = 2;
+}
+
+message SimChanged {
+  // New ICCID after hot-swap; binding rotation handled cloud-side.
+  string new_iccid = 1;
+}

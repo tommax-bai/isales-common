@@ -4,6 +4,52 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.2.0] — 2026-05-13
+
+### Added
+
+- **Cloud-edge gRPC control plane** (`proto.cloud_edge`): authoritative
+  `.proto` source plus committed Python / gRPC / `.pyi` stubs. One bidi
+  `CloudEdge.Bidi` stream per edge process; `Edge2Cloud` and `Cloud2Edge`
+  envelopes carry `Heartbeat` / `DialCommand` / `CancelCommand` /
+  `CallEvent` / `HardwareAlert` / `RtcCredentials` / `ConfigUpdate` /
+  `RemoteDiagnostic` / `DialAck`. `CallEvent` and `HardwareAlert` use
+  nested `oneof kind` for typed event payloads. Package version pinned
+  in the proto path (`isales.cloud_edge.v1`). Spec: arch-cloud-edge-split
+  change, service-communication § "云-边控制面".
+- **Transport ABCs** (`transport.cloud_edge`): `CloudEdgeServer` /
+  `CloudEdgeClient` / `TokenVerifier` / `EdgeIdentity`, plus errors
+  `CloudEdgeError` / `EdgeNotConnected` / `InvalidToken`. Pure contract —
+  no `grpcio` import. Concrete server lives in isales-engine, concrete
+  client in isales-telephony.
+- **Transport test doubles** (`transport.testing`): `InMemoryCloudEdgeServer`
+  / `InMemoryCloudEdgeClient` / `StaticTokenVerifier` for in-process
+  dispatch tests; buffer-on-disconnect semantics match the production
+  contract (`critical=True` rejects when disconnected; default buffers).
+- **RTC session ABC** (`audio.rtc`): `RtcSession` plus `PcmFrame` / errors
+  `RtcError` / `RtcNotJoined` / `RtcPushBackpressure`. Symmetric contract
+  used by both the cloud engine and edge audio-bridge; awaits SDK drain
+  on outbound backpressure. Spec: device-hardware § "audio-bridge 组件" /
+  "云端 engine 的 ARTC SDK 接入".
+- **RTC test doubles** (`audio.testing`): `InMemoryRtcSession` (loopback)
+  and `linked_pair()` (cross-wired cloud ↔ edge) for end-to-end audio
+  pipeline tests without real RTC.
+- **`make proto` Makefile target**: regenerates pb2 / pb2_grpc / .pyi
+  stubs in place via `grpc_tools.protoc`. Generated stubs are committed.
+- **`protobuf>=5.0`** moved to runtime dependencies (proto message classes
+  needed at import time). `grpcio-tools>=1.60` added to the `dev` extra.
+
+### Notes
+
+- proto field numbers ≤ 15 are reserved for hot-path payloads (1-byte
+  tag); 16+ for cold metadata. Field renumbering / removal MUST go through
+  a `v2` package — concurrent v1+v2 service stubs run in parallel until
+  edges roll forward.
+- `ruff` / `mypy` / `ruff format` are configured to skip generated
+  `*_pb2*.py` files. Regenerate with `make proto`, never edit by hand.
+
+[v0.2.0]: https://github.com/tommax-bai/isales-common/releases/tag/v0.2.0
+
 ## [v0.1.2] — 2026-05-06
 
 ### Added
