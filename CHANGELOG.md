@@ -4,6 +4,21 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.2.1] — 2026-05-13
+
+### Fixed
+
+- `proto.cloud_edge_pb2_grpc` now imports `cloud_edge_pb2` via the
+  package-relative path (`from isales_common.proto import cloud_edge_pb2
+  as cloud__edge__pb2`). The grpcio-tools default emits a bare
+  `import cloud_edge_pb2`, which only resolves if `isales_common/proto/`
+  itself is on `sys.path` — fine inside this repo but breaks downstream
+  services importing the stub via the package path. The Makefile's
+  `proto` target now post-processes the generated file with `sed` so
+  future regenerations stay consistent.
+
+[v0.2.1]: https://github.com/tommax-bai/isales-common/releases/tag/v0.2.1
+
 ## [v0.2.0] — 2026-05-13
 
 ### Added

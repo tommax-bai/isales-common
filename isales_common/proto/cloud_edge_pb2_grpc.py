@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import cloud_edge_pb2 as cloud__edge__pb2
+from isales_common.proto import cloud_edge_pb2 as cloud__edge__pb2
 
 GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
