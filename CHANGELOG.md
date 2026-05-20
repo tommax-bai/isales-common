@@ -4,6 +4,22 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.3.0] — 2026-05-19
+
+### Added
+
+- `appointment` SQLAlchemy model + alembic migration
+  (`a1b2c3d4e5f6_add_appointment_table.py`) — additive table with FKs to
+  `lead` (CASCADE on delete) and `call_record` (SET NULL on delete); status
+  enum (pending / confirmed / completed / cancelled, default pending).
+  Spec: `openspec/changes/web-admin-ui-redesign` capability `appointment`.
+- `AppointmentCreate` / `AppointmentUpdate` / `AppointmentRead` /
+  `AppointmentStatusAction` pydantic DTOs in
+  `isales_common.schemas.appointment`.
+- `LeadStatus.APPOINTED` / `VISITED` / `LOST` enum values. Column type is
+  `String(24)`; no DDL needed.
+- `AppointmentStatus` and `AppointmentAction` StrEnums.
+
 ## [v0.2.1] — 2026-05-13
 
 ### Fixed

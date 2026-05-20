@@ -81,6 +81,25 @@ class LeadStatus(StrEnum):
     FOLLOW_UP_EXHAUSTED = "follow_up_exhausted"
     DO_NOT_CALL = "do_not_call"
     TRANSFERRED = "transferred"
+    # appointment lifecycle terminals — set by api when creating / completing
+    # an appointment for this lead. See appointment spec § "Appointment 与
+    # Lead 的状态联动". Column is String(24); no PG enum DDL needed.
+    APPOINTED = "appointed"
+    VISITED = "visited"
+    LOST = "lost"
+
+
+class AppointmentStatus(StrEnum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class AppointmentAction(StrEnum):
+    CONFIRM = "confirm"
+    COMPLETE = "complete"
+    CANCEL = "cancel"
 
 
 class CallbackStatus(StrEnum):

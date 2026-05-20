@@ -79,6 +79,10 @@ def test_lead_status():
         "follow_up_exhausted",
         "do_not_call",
         "transferred",
+        # appointment lifecycle terminals added by web-admin-ui-redesign
+        "appointed",
+        "visited",
+        "lost",
     }
 
 

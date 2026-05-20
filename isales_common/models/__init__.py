@@ -3,6 +3,7 @@ autogenerate can discover them by importing this package.
 """
 
 from isales_common.models.agent import Agent
+from isales_common.models.appointment import Appointment
 from isales_common.models.base import Base, TimestampMixin, utc_now
 from isales_common.models.call_record import CallRecord
 from isales_common.models.call_summary import CallSummary
@@ -23,6 +24,7 @@ from isales_common.models.voice_model import VoiceModel
 
 __all__ = [
     "Agent",
+    "Appointment",
     "Base",
     "CallRecord",
     "CallSummary",
