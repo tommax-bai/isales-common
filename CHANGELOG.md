@@ -4,6 +4,16 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.3.1] — 2026-05-22
+
+### Added
+
+- `isales_common.schemas.filler` — `FillerSetCreate/Update/Read` +
+  `FillerPhraseCreate/Update/Read` pydantic DTOs. The `filler_set` /
+  `filler_phrase` SQLAlchemy models already existed; only the DTO layer
+  was missing. Needed by isales-api's new filler admin CRUD endpoints
+  (change `web-admin-campaign-workflow`).
+
 ## [v0.3.0] — 2026-05-19
 
 ### Added
