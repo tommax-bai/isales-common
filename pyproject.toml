@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "isales-common"
-version = "0.3.2"
+version = "0.4.0"
 description = "Shared models, schemas, AI provider ABCs, message contracts, cloud-edge transport ABCs, and utilities for the iSales platform"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -32,6 +32,9 @@ dev = [
     "types-redis",
     "grpcio-tools>=1.60",
 ]
+
+[project.scripts]
+isales-cred-migrate = "isales_common.cli.cred_migrate:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["isales_common"]

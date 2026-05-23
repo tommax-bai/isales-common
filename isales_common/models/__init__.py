@@ -18,6 +18,7 @@ from isales_common.models.holiday import Holiday
 from isales_common.models.lead import Lead
 from isales_common.models.pipeline_trace import PipelineTrace
 from isales_common.models.prompt import PromptVersion
+from isales_common.models.provider_credential import ProviderCredential
 from isales_common.models.role_config import RoleConfig
 from isales_common.models.sim_card import SimCard
 from isales_common.models.voice_model import VoiceModel
@@ -41,6 +42,7 @@ __all__ = [
     "Lead",
     "PipelineTrace",
     "PromptVersion",
+    "ProviderCredential",
     "RoleConfig",
     "SimCard",
     "TimestampMixin",
