@@ -45,6 +45,9 @@ ENV_KEY_MAP: dict[str, tuple[str, str]] = {
     # 老版 app_key/app_token 仍保留作 fallback 走旧版三件套鉴权.
     "ISALES_VOLCENGINE_API_KEY": ("volcengine", "api_key"),
     "ISALES_VOLCENGINE_TTS_RESOURCE_ID": ("volcengine", "tts_resource_id"),
+    # ASR V3 SAUC resource id (volc.bigasr.sauc.duration / .concurrent /
+    # volc.seedasr.sauc.duration / .concurrent). 跨 grant 切版本走这里.
+    "ISALES_VOLCENGINE_ASR_RESOURCE_ID": ("volcengine", "asr_resource_id"),
     "ISALES_OPENAI_API_KEY": ("openai", "api_key"),
     "ISALES_OPENAI_BASE_URL": ("openai", "endpoint"),
     "ISALES_VOLCENGINE_LLM_MODEL": ("volcengine", "default_model"),
