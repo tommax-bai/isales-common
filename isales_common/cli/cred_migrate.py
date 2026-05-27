@@ -41,6 +41,10 @@ from isales_common.utils.crypto import decrypt, encrypt
 ENV_KEY_MAP: dict[str, tuple[str, str]] = {
     "ISALES_VOLCENGINE_APP_KEY": ("volcengine", "app_key"),
     "ISALES_VOLCENGINE_APP_TOKEN": ("volcengine", "app_token"),
+    # 新版控制台单 API Key 鉴权 (豆包 V3 SSE TTS, vendor docs § 2.1 新版控制台).
+    # 老版 app_key/app_token 仍保留作 fallback 走旧版三件套鉴权.
+    "ISALES_VOLCENGINE_API_KEY": ("volcengine", "api_key"),
+    "ISALES_VOLCENGINE_TTS_RESOURCE_ID": ("volcengine", "tts_resource_id"),
     "ISALES_OPENAI_API_KEY": ("openai", "api_key"),
     "ISALES_OPENAI_BASE_URL": ("openai", "endpoint"),
     "ISALES_VOLCENGINE_LLM_MODEL": ("volcengine", "default_model"),
