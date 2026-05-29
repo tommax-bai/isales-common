@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, Float, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -42,6 +42,12 @@ class Campaign(Base, TimestampMixin):
     wrap_up_max_rounds: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
     wrap_up_max_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
     wrap_up_closing_phrases: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+
+    # greeting (ai-pipeline § "开场白不走管线" — fixed-template branch).
+    # NULL → load_runtime_config sets fixed_greeting=None → generate_greeting
+    # falls back to the LLM path; non-NULL → engine plays the literal text via
+    # TTS, no LLM call.
+    greeting: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # interruption-detection
     interruption_whitelist: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)

@@ -37,6 +37,10 @@ class CampaignBase(AppModel):
     wrap_up_max_seconds: int = Field(ge=0)
     wrap_up_closing_phrases: list[str] = Field(default_factory=list)
 
+    # greeting (fixed-template branch of ai-pipeline § "开场白不走管线"). NULL
+    # falls back to the LLM-generated greeting path.
+    greeting: str | None = None
+
     # interruption-detection
     interruption_whitelist: list[str] = Field(default_factory=list)
     interruption_min_duration_ms: int = Field(ge=0)
@@ -90,6 +94,7 @@ class CampaignUpdate(AppModel):
     wrap_up_max_rounds: int | None = None
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None
+    greeting: str | None = None
     interruption_whitelist: list[str] | None = None
     interruption_min_duration_ms: int | None = None
     max_continuous_interruptions: int | None = None
