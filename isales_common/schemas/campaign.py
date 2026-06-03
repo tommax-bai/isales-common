@@ -41,6 +41,10 @@ class CampaignBase(AppModel):
     # falls back to the LLM-generated greeting path.
     greeting: str | None = None
 
+    # filler opt-in (pipeline-stream-and-referee). Off by default — streaming
+    # main link reaches first audio in ~500ms.
+    filler_enabled: bool = False
+
     # interruption-detection
     interruption_whitelist: list[str] = Field(default_factory=list)
     interruption_min_duration_ms: int = Field(ge=0)
