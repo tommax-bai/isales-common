@@ -10,9 +10,7 @@ from isales_common.schemas.jsonb import (
     ExtractionField,
     GreetingEvent,
     HangupEvent,
-    JudgeResult,
     RetryPolicy,
-    RoleCandidate,
     TimeWindow,
     TranscriptEvent,
     UserSpeechEvent,
@@ -59,16 +57,6 @@ class TestExtractionField:
     def test_invalid_type(self):
         with pytest.raises(ValidationError):
             ExtractionField(name="x", type="json")  # type: ignore[arg-type]
-
-
-class TestPipelineTraceComponents:
-    def test_role_candidate_minimal(self):
-        c = RoleCandidate(role_config_id=1, prompt_version_id=2)
-        assert c.role_config_id == 1
-
-    def test_judge_result(self):
-        j = JudgeResult(candidate_index=0, role_config_id=10, prompt_version_id=20, passed=True)
-        assert j.passed
 
 
 class TestTranscriptEventDiscriminatedUnion:

@@ -274,27 +274,25 @@ class TestCallSchemas:
             ts_start=_now(),
             ts_end=_now(),
             user_input="hi",
-            role_candidates=[{"role_config_id": 1, "prompt_version_id": 11, "raw_output": "{}"}],
-            judge_results=[
-                {
-                    "candidate_index": 0,
-                    "role_config_id": 2,
-                    "prompt_version_id": 22,
-                    "passed": True,
-                }
-            ],
-            polish_input=None,
-            polish_output="ok",
-            polish_duration_ms=80,
-            polish_role_config_id=3,
-            polish_prompt_version_id=33,
-            final_selected_candidate_index=0,
+            main_reply_text="您好，请问现在方便吗？",
+            main_duration_ms=420,
+            main_tokens_in=120,
+            main_tokens_out=18,
+            main_fallback_used=False,
+            referee_decision="continue",
+            referee_goal_type=None,
+            referee_confidence=0.82,
+            referee_duration_ms=310,
+            first_audio_ms=480,
+            error=None,
             created_at=_now(),
             updated_at=_now(),
         )
         dto = PipelineTraceRead.model_validate(orm)
-        assert dto.role_candidates[0].role_config_id == 1
-        assert dto.judge_results[0].passed is True
+        assert dto.main_reply_text == "您好，请问现在方便吗？"
+        assert dto.referee_decision == "continue"
+        assert dto.first_audio_ms == 480
+        assert dto.main_fallback_used is False
 
 
 class TestCallbackSchemas:
@@ -377,7 +375,7 @@ class TestMiscReadSchemas:
         orm = RoleConfig(
             id=1,
             campaign_id=1,
-            kind=RoleKind.ROLE,
+            kind=RoleKind.MAIN,
             model="gpt-4",
             current_prompt_version_id=None,
             temperature=0.7,
@@ -387,12 +385,12 @@ class TestMiscReadSchemas:
             created_at=_now(),
             updated_at=_now(),
         )
-        assert RoleConfigRead.model_validate(orm).kind == RoleKind.ROLE
+        assert RoleConfigRead.model_validate(orm).kind == RoleKind.MAIN
 
     def test_prompt(self):
         orm = PromptVersion(
             id=1,
-            scope_type=PromptScopeType.ROLE,
+            scope_type=PromptScopeType.MAIN,
             scope_id=1,
             content="hi",
             created_by="me",

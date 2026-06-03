@@ -2,11 +2,6 @@
 
 from isales_common.schemas.jsonb.callback_trigger import CallbackTrigger
 from isales_common.schemas.jsonb.extraction_field import ExtractionField, ExtractionFieldType
-from isales_common.schemas.jsonb.pipeline_trace import (
-    JudgeResult,
-    PolishInput,
-    RoleCandidate,
-)
 from isales_common.schemas.jsonb.retry_policy import RetryPolicy
 from isales_common.schemas.jsonb.time_window import TimeWindow, WeekDay
 from isales_common.schemas.jsonb.transcript import (
@@ -37,10 +32,7 @@ __all__ = [
     "GreetingEvent",
     "HangupEvent",
     "InterruptionEvent",
-    "JudgeResult",
-    "PolishInput",
     "RetryPolicy",
-    "RoleCandidate",
     "SilenceActivationEvent",
     "TimeWindow",
     "TranscriptEvent",

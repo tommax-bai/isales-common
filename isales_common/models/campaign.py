@@ -49,6 +49,12 @@ class Campaign(Base, TimestampMixin):
     # TTS, no LLM call.
     greeting: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # filler (pipeline-stream-and-referee): streaming main link reaches first
+    # audio in ~500ms so filler is off by default. Opt-in for campaigns running
+    # a slow main model. Removal trigger: pipeline-remove-filler (3 months
+    # post-archive with no campaign enabling this).
+    filler_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
     # interruption-detection
     interruption_whitelist: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     interruption_min_duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=400)

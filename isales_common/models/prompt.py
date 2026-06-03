@@ -1,6 +1,9 @@
-"""prompt_version — versioned LLM prompt content for role/judge/polish slots.
+"""prompt_version — versioned LLM prompt content for main/referee/extractor slots.
 
 Spec: data-model § prompt_version; role-prompt for prompt assembly rules.
+
+pipeline-stream-and-referee: ``scope_type`` allowed values are
+``{main, referee, extractor}`` (was ``{role, judge, polish}``).
 """
 
 from __future__ import annotations

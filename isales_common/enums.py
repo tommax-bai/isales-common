@@ -17,16 +17,19 @@ class CallStatus(StrEnum):
     END = "end"
 
 
+# pipeline-stream-and-referee: three-layer PK/judge/polish replaced by the
+# voxen-style dual-LLM architecture. main = streaming text reply, referee =
+# side-band enum decision, extractor = post-call structured extraction.
 class RoleKind(StrEnum):
-    ROLE = "role"
-    JUDGE = "judge"
-    POLISH = "polish"
+    MAIN = "main"
+    REFEREE = "referee"
+    EXTRACTOR = "extractor"
 
 
 class PromptScopeType(StrEnum):
-    ROLE = "role"
-    JUDGE = "judge"
-    POLISH = "polish"
+    MAIN = "main"
+    REFEREE = "referee"
+    EXTRACTOR = "extractor"
 
 
 class TransferStatus(StrEnum):

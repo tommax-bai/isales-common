@@ -12,12 +12,7 @@ from pydantic import Field
 
 from isales_common.enums import CallStatus, TransferStatus
 from isales_common.schemas._base import AppModel, ORMModel
-from isales_common.schemas.jsonb import (
-    JudgeResult,
-    PolishInput,
-    RoleCandidate,
-    TranscriptEvent,
-)
+from isales_common.schemas.jsonb import TranscriptEvent
 
 
 class CallRecordRead(ORMModel):
@@ -39,6 +34,11 @@ class CallRecordRead(ORMModel):
     wrap_up_started_at: datetime | None = None
 
     prompt_versions: dict[str, Any] = Field(default_factory=dict)
+
+    # post-call extractor (pipeline-stream-and-referee).
+    extracted: dict[str, Any] | None = None
+    extract_status: str | None = None
+    extract_error: str | None = None
 
     created_at: datetime
     updated_at: datetime
@@ -69,13 +69,22 @@ class PipelineTraceRead(ORMModel):
     ts_start: datetime
     ts_end: datetime | None = None
     user_input: str | None = None
-    role_candidates: list[RoleCandidate] = Field(default_factory=list)
-    judge_results: list[JudgeResult] = Field(default_factory=list)
-    polish_input: PolishInput | None = None
-    polish_output: str | None = None
-    polish_duration_ms: int | None = None
-    polish_role_config_id: int | None = None
-    polish_prompt_version_id: int | None = None
-    final_selected_candidate_index: int | None = None
+
+    # main streaming LLM.
+    main_reply_text: str | None = None
+    main_duration_ms: int | None = None
+    main_tokens_in: int | None = None
+    main_tokens_out: int | None = None
+    main_fallback_used: bool = False
+
+    # referee side-band LLM.
+    referee_decision: str | None = None
+    referee_goal_type: str | None = None
+    referee_confidence: float | None = None
+    referee_duration_ms: int | None = None
+
+    first_audio_ms: int | None = None
+    error: str | None = None
+
     created_at: datetime
     updated_at: datetime

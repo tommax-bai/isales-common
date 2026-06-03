@@ -4,6 +4,39 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.5.0] — 2026-06-03
+
+### Changed (BREAKING)
+
+- **Pipeline three-layer → dual-LLM architecture** (change
+  `pipeline-stream-and-referee`). The N-role PK + N×M judges + polish design is
+  replaced by main (streaming text) + referee (side-band enum decision) +
+  post-call extractor.
+  - `RoleKind` / `PromptScopeType` enums: `{role, judge, polish}` →
+    `{main, referee, extractor}`.
+  - `pipeline_trace`: dropped `role_candidates / judge_results / polish_* /
+    final_selected_candidate_index`; added `main_reply_text / main_duration_ms /
+    main_tokens_in / main_tokens_out / main_fallback_used / referee_decision /
+    referee_goal_type / referee_confidence / referee_duration_ms /
+    first_audio_ms / error`.
+  - Removed JSONB nested models `RoleCandidate / JudgeResult / PolishInput`
+    (`isales_common.schemas.jsonb`).
+  - `PipelineTraceRead` / `CallRecordRead` DTOs updated to match.
+
+### Added
+
+- `isales_common.schemas.pipeline` — `MainSpec / RefereeSpec / ExtractorSpec /
+  PipelineConfig` (replaces the old engine-side dataclasses as the shared
+  contract).
+- `call_record.extracted / extract_status / extract_error` — post-call
+  extractor output (worker-written, async).
+- `campaign.filler_enabled` (default `false`) — filler opt-in flag.
+- `LLMProvider.chat_stream(...) -> AsyncIterator[str]` abstract method plus
+  `last_call_tokens_in / last_call_tokens_out / last_call_finish_reason`
+  usage attributes, for the main streaming reply path.
+- Alembic migration `c3d4e5f6a7b8_pipeline_stream_and_referee` (deletes old
+  role_config / prompt_version rows; campaigns must be re-seeded).
+
 ## [v0.3.2] — 2026-05-22
 
 ### Added

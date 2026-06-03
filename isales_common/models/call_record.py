@@ -52,4 +52,15 @@ class CallRecord(Base, TimestampMixin):
     )
 
     # Snapshot of {role_config_id: prompt_version_id} pinned at call start.
+    # pipeline-stream-and-referee documents the JSONB shape as
+    # {main_llm, referee_llm, extractor_llm, wrap_up_appended}; the DB column
+    # stays free-form JSONB (no app-level schema enforcement).
     prompt_versions: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+
+    # post-call extractor (pipeline-stream-and-referee): worker writes the
+    # structured customer fields asynchronously after the call ends. Replaces
+    # the engine-inline write into call_summary.extracted_fields.
+    # extract_status: NULL (no extract queued) | 'pending' | 'done' | 'failed'.
+    extracted: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    extract_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    extract_error: Mapped[str | None] = mapped_column(Text, nullable=True)

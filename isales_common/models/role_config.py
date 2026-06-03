@@ -1,4 +1,4 @@
-"""role_config — per-campaign LLM slot config (role / judge / polish).
+"""role_config — per-campaign LLM slot config (main / referee / extractor).
 
 Spec: data-model § role_config; ai-pipeline + role-prompt for behavior.
 """
