@@ -16,3 +16,13 @@ from __future__ import annotations
 #: surfacing a campaign's start/stop badge) MAY read this SET; they MUST NOT
 #: write it.
 SCHEDULER_ACTIVE_CAMPAIGNS_SET = "scheduler:active-campaigns"
+
+#: Redis Queue (list) for post-call structured extraction tasks.
+#:
+#: ``isales-engine`` LPUSHes one JSON task per ended call (and sets
+#: ``call_record.extract_status='pending'``); ``isales-worker``'s
+#: post_call_extractor consumer BLPOPs, runs the extractor LLM, and writes
+#: ``call_record.extracted`` + ``extract_status='done'|'failed'``. Channel:
+#: Redis Queue (must-deliver, async OK). Spec: service-communication §
+#: "isales:extract 队列消息 schema" (pipeline-stream-and-referee).
+EXTRACT_QUEUE = "isales:extract"

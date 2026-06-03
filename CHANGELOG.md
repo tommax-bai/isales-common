@@ -36,6 +36,8 @@ adheres to [Semantic Versioning](https://semver.org/).
   usage attributes, for the main streaming reply path.
 - Alembic migration `c3d4e5f6a7b8_pipeline_stream_and_referee` (deletes old
   role_config / prompt_version rows; campaigns must be re-seeded).
+- `isales_common.redis_keys.EXTRACT_QUEUE` (`isales:extract`) — engine→worker
+  post-call extraction queue.
 
 ## [v0.3.2] — 2026-05-22
 
