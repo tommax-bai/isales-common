@@ -177,6 +177,7 @@ class TestCampaignSchemas:
             do_not_call_llm_enabled=False,
             do_not_call_llm_prompt_version_id=None,
             respect_holidays=True,
+            filler_enabled=False,
             created_at=_now(),
             updated_at=_now(),
         )
