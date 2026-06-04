@@ -22,6 +22,10 @@ adheres to [Semantic Versioning](https://semver.org/).
   - Removed JSONB nested models `RoleCandidate / JudgeResult / PolishInput`
     (`isales_common.schemas.jsonb`).
   - `PipelineTraceRead` / `CallRecordRead` DTOs updated to match.
+  - `PromptVersionsSnapshot` (dial message): `role_llms[] / judge_llm /
+    polish_llm` → `main_llm / referee_llm / extractor_llm` (the
+    `call_record.prompt_versions` snapshot shape; produced by isales-scheduler,
+    consumed by isales-engine).
 
 ### Added
 

@@ -44,11 +44,15 @@ class PromptVersionRef(AppModel):
 
 
 class PromptVersionsSnapshot(AppModel):
-    """Mirrors ``call_record.prompt_versions`` JSONB shape (role-prompt spec)."""
+    """Mirrors ``call_record.prompt_versions`` JSONB shape (role-prompt spec).
 
-    role_llms: list[PromptVersionRef] = Field(default_factory=list)
-    judge_llm: PromptVersionRef | None = None
-    polish_llm: PromptVersionRef | None = None
+    pipeline-stream-and-referee: dual-LLM slots — ``main_llm`` / ``referee_llm``
+    / ``extractor_llm`` (was ``role_llms[]`` / ``judge_llm`` / ``polish_llm``).
+    """
+
+    main_llm: PromptVersionRef | None = None
+    referee_llm: PromptVersionRef | None = None
+    extractor_llm: PromptVersionRef | None = None
     wrap_up_appended: bool = False
 
 

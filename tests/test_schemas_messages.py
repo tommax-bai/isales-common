@@ -77,9 +77,9 @@ def _sample_dial_request() -> DialRequest:
             ),
         ],
         prompt_versions=PromptVersionsSnapshot(
-            role_llms=[PromptVersionRef(role_config_id=1, prompt_version_id=5)],
-            judge_llm=PromptVersionRef(role_config_id=2, prompt_version_id=7),
-            polish_llm=PromptVersionRef(role_config_id=3, prompt_version_id=9),
+            main_llm=PromptVersionRef(role_config_id=1, prompt_version_id=5),
+            referee_llm=PromptVersionRef(role_config_id=2, prompt_version_id=7),
+            extractor_llm=PromptVersionRef(role_config_id=3, prompt_version_id=9),
             wrap_up_appended=False,
         ),
         caller_id="+8675500000000",
