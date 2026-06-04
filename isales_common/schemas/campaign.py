@@ -45,6 +45,10 @@ class CampaignBase(AppModel):
     # main link reaches first audio in ~500ms.
     filler_enabled: bool = False
 
+    # asr endpoint silence threshold (pipeline-latency-tail § A). NULL → engine
+    # default 400ms.
+    asr_eos_silence_ms: int | None = None
+
     # interruption-detection
     interruption_whitelist: list[str] = Field(default_factory=list)
     interruption_min_duration_ms: int = Field(ge=0)
@@ -95,6 +99,7 @@ class CampaignUpdate(AppModel):
     silence_phrases: list[str] | None = None
     silence_hangup_phrase: str | None = None
     max_no_progress_seconds: int | None = None
+    asr_eos_silence_ms: int | None = None
     wrap_up_max_rounds: int | None = None
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None

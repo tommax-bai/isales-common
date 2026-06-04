@@ -55,6 +55,12 @@ class Campaign(Base, TimestampMixin):
     # post-archive with no campaign enabling this).
     filler_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    # asr endpoint silence threshold (pipeline-latency-tail § A). NULL →
+    # load_runtime_config uses the system default (400ms) for the ASR EOS
+    # stable-silence window; lower = faster open but more likely to clip a
+    # hesitating caller's pause as "done".
+    asr_eos_silence_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     # interruption-detection
     interruption_whitelist: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     interruption_min_duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=400)

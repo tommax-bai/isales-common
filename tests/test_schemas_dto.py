@@ -178,12 +178,14 @@ class TestCampaignSchemas:
             do_not_call_llm_prompt_version_id=None,
             respect_holidays=True,
             filler_enabled=False,
+            asr_eos_silence_ms=250,
             created_at=_now(),
             updated_at=_now(),
         )
         dto = CampaignRead.model_validate(orm)
         assert dto.id == 42
         assert dto.time_windows[0].start == "09:00"
+        assert dto.asr_eos_silence_ms == 250
 
 
 class TestLeadSchemas:

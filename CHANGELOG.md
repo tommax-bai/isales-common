@@ -4,6 +4,16 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.5.1] — 2026-06-04
+
+### Added
+
+- **`campaign.asr_eos_silence_ms`** (Integer, nullable) — per-campaign ASR EOS
+  stable-silence threshold in ms (change `pipeline-latency-tail` § A). NULL
+  falls back to the engine default (400ms). Added to `Campaign` model,
+  `CampaignBase` / `CampaignUpdate` schemas, and alembic migration
+  `d4e5f6a7b8c9` (additive column, no data migration).
+
 ## [v0.5.0] — 2026-06-03
 
 ### Changed (BREAKING)
