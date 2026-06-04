@@ -55,6 +55,12 @@ class Campaign(Base, TimestampMixin):
     # post-archive with no campaign enabling this).
     filler_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    # filler time-gate (tts-cache-and-gated-filler). NULL → engine default
+    # 600ms: only play a filler when the main reply's first audio hasn't
+    # started within this window (mask a slow LLM TTFT without polluting fast
+    # turns).
+    filler_delay_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     # asr endpoint silence threshold (pipeline-latency-tail § A). NULL →
     # load_runtime_config uses the system default (400ms) for the ASR EOS
     # stable-silence window; lower = faster open but more likely to clip a

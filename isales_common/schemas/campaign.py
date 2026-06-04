@@ -45,6 +45,10 @@ class CampaignBase(AppModel):
     # main link reaches first audio in ~500ms.
     filler_enabled: bool = False
 
+    # filler time-gate (tts-cache-and-gated-filler). NULL → engine default
+    # 600ms. Only play a filler when first audio hasn't started within this.
+    filler_delay_ms: int | None = None
+
     # asr endpoint silence threshold (pipeline-latency-tail § A). NULL → engine
     # default 400ms.
     asr_eos_silence_ms: int | None = None
@@ -100,6 +104,7 @@ class CampaignUpdate(AppModel):
     silence_hangup_phrase: str | None = None
     max_no_progress_seconds: int | None = None
     asr_eos_silence_ms: int | None = None
+    filler_delay_ms: int | None = None
     wrap_up_max_rounds: int | None = None
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None

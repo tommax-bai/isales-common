@@ -4,6 +4,17 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.5.2] — 2026-06-04
+
+### Added
+
+- **`campaign.filler_delay_ms`** (Integer, nullable) — per-campaign filler
+  time-gate in ms (change `tts-cache-and-gated-filler` § B). NULL falls back
+  to the engine default (600ms): a filler is played only when the main
+  reply's first audio hasn't started within this window. Added to `Campaign`
+  model, `CampaignBase` / `CampaignUpdate` schemas, and alembic migration
+  `e5f6a7b8c9d0` (additive column).
+
 ## [v0.5.1] — 2026-06-04
 
 ### Added

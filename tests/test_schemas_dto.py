@@ -179,6 +179,7 @@ class TestCampaignSchemas:
             respect_holidays=True,
             filler_enabled=False,
             asr_eos_silence_ms=250,
+            filler_delay_ms=500,
             created_at=_now(),
             updated_at=_now(),
         )
@@ -186,6 +187,7 @@ class TestCampaignSchemas:
         assert dto.id == 42
         assert dto.time_windows[0].start == "09:00"
         assert dto.asr_eos_silence_ms == 250
+        assert dto.filler_delay_ms == 500
 
 
 class TestLeadSchemas:
