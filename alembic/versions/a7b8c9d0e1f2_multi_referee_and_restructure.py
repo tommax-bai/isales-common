@@ -1,6 +1,6 @@
 """multi referee + routing rules + restructure stream
 
-Revision ID: a1b2c3d4e5f6
+Revision ID: a7b8c9d0e1f2
 Revises: f6a7b8c9d0e1
 Create Date: 2026-06-05 16:00:00.000000
 
@@ -30,7 +30,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "a1b2c3d4e5f6"
+revision: str = "a7b8c9d0e1f2"
 down_revision: Union[str, Sequence[str], None] = "f6a7b8c9d0e1"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
