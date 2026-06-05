@@ -14,6 +14,9 @@ from isales_common.schemas._base import AppModel, ORMModel
 class RoleConfigBase(AppModel):
     campaign_id: int
     kind: RoleKind
+    # Routing label for kind=referee/restructure rows (referenced by
+    # campaign.routing_rules). NULL for main/extractor.
+    label: str | None = Field(default=None, max_length=64)
     model: str = Field(min_length=1, max_length=128)
     current_prompt_version_id: int | None = None
     temperature: float = Field(ge=0.0, le=2.0)
@@ -28,6 +31,7 @@ class RoleConfigCreate(RoleConfigBase):
 
 class RoleConfigUpdate(AppModel):
     kind: RoleKind | None = None
+    label: str | None = Field(default=None, max_length=64)
     model: str | None = None
     current_prompt_version_id: int | None = None
     temperature: float | None = None

@@ -14,7 +14,10 @@ default replies, follow-up count) live in the engine's runtime layer, not here.
 
 from __future__ import annotations
 
+from pydantic import Field
+
 from isales_common.schemas._base import AppModel
+from isales_common.schemas.jsonb import RoutingRule
 
 
 class _SlotSpec(AppModel):
@@ -33,7 +36,20 @@ class MainSpec(_SlotSpec):
 
 
 class RefereeSpec(_SlotSpec):
-    """Referee side-band LLM slot (enum decision JSON)."""
+    """A single referee side-band LLM slot (category-decision JSON).
+
+    engine-multi-referee-and-restructure: ``label`` is the stable id routing
+    rules bind to. The referee's category enum semantics live in its prompt;
+    the engine never hardcodes them.
+    """
+
+    label: str
+
+
+class RestructureSpec(_SlotSpec):
+    """Restructure / rewrite LLM slot — re-voices InterruptText (D4)."""
+
+    label: str
 
 
 class ExtractorSpec(_SlotSpec):
@@ -41,13 +57,21 @@ class ExtractorSpec(_SlotSpec):
 
 
 class PipelineConfig(AppModel):
-    """The three resolved LLM slots for one call.
+    """The resolved LLM slots + routing config for one call.
+
+    engine-multi-referee-and-restructure: single ``referee`` → ``referees``
+    list; new optional ``restructure`` slot; routing rules + restructure caps
+    carried through from the campaign.
 
     ``short_reply_active`` carries the continuous-interruption protection flag
     through to main-prompt assembly (unchanged semantics from the old config).
     """
 
     main: MainSpec
-    referee: RefereeSpec
+    referees: list[RefereeSpec] = Field(default_factory=list)
+    restructure: RestructureSpec | None = None
     extractor: ExtractorSpec
+    routing_rules: list[RoutingRule] = Field(default_factory=list)
+    max_continuous_restructure: int = 2
+    primary_referee_label: str | None = None
     short_reply_active: bool = False

@@ -23,6 +23,11 @@ class RoleConfig(Base, TimestampMixin):
         BigInteger, ForeignKey("campaign.id", ondelete="CASCADE"), nullable=False, index=True
     )
     kind: Mapped[RoleKind] = mapped_column(String(16), nullable=False, index=True)
+    # Stable identifier referenced by campaign.routing_rules (engine-multi-referee
+    # -and-restructure D1). Only meaningful for kind=referee/restructure rows;
+    # main/extractor leave it NULL. Unique per (campaign_id, label) among non-NULL
+    # labels — enforced by a partial unique index in the alembic migration.
+    label: Mapped[str | None] = mapped_column(String(64), nullable=True)
     model: Mapped[str] = mapped_column(String(128), nullable=False)
     # Nullable until the first prompt_version is created for this slot.
     current_prompt_version_id: Mapped[int | None] = mapped_column(

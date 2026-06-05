@@ -42,6 +42,22 @@ class Campaign(Base, TimestampMixin):
     silence_hangup_phrase: Mapped[str | None] = mapped_column(String(512), nullable=True)
     max_no_progress_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # multi-referee routing (engine-multi-referee-and-restructure D3). Ordered
+    # list of rules, each {referee: <label>, match: [<category>...], action: {...}}.
+    # decider walks the list and the first matching rule wins. No match → continue.
+    # Stored as a JSONB column (not a separate table) — same pattern as
+    # default_replies; element shape validated by schemas.jsonb.RoutingRule. The
+    # trigger to migrate to a real table (cross-campaign rule templates / per-rule
+    # audit) is documented in design.md D3.
+    routing_rules: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    # restructure (engine-multi-referee-and-restructure D4/D5). Cap on consecutive
+    # restructure turns before falling back to default_replies / continuous-
+    # interruption handling, so the AI doesn't sound like it's on repeat.
+    max_continuous_restructure: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
+    # Which referee (by label) is the "primary" judge used for the low-confidence
+    # restructure fallback (D5 case c). NULL → no low-confidence restructure.
+    primary_referee_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
     # wrap-up (goal-achievement)
     wrap_up_max_rounds: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
     wrap_up_max_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=60)

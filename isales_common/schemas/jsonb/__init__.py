@@ -3,6 +3,12 @@
 from isales_common.schemas.jsonb.callback_trigger import CallbackTrigger
 from isales_common.schemas.jsonb.extraction_field import ExtractionField, ExtractionFieldType
 from isales_common.schemas.jsonb.retry_policy import RetryPolicy
+from isales_common.schemas.jsonb.routing_rule import (
+    RestructureAction,
+    RoutingAction,
+    RoutingRule,
+    TransitionAction,
+)
 from isales_common.schemas.jsonb.time_window import TimeWindow, WeekDay
 from isales_common.schemas.jsonb.transcript import (
     AIReplyEvent,
@@ -32,12 +38,16 @@ __all__ = [
     "GreetingEvent",
     "HangupEvent",
     "InterruptionEvent",
+    "RestructureAction",
     "RetryPolicy",
+    "RoutingAction",
+    "RoutingRule",
     "SilenceActivationEvent",
     "TimeWindow",
     "TranscriptEvent",
     "TransferInitiatedEvent",
     "TransferMarkedEvent",
+    "TransitionAction",
     "UserSpeechEvent",
     "WeekDay",
     "WrapUpCompletedEvent",

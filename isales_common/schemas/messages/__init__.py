@@ -23,6 +23,7 @@ from isales_common.schemas.messages.dial import (
     HistorySummary,
     PromptVersionRef,
     PromptVersionsSnapshot,
+    RefereePromptVersionRef,
 )
 from isales_common.schemas.messages.engine_control import (
     EngineControl,
@@ -71,6 +72,7 @@ __all__ = [
     "PauseCampaign",
     "PromptVersionRef",
     "PromptVersionsSnapshot",
+    "RefereePromptVersionRef",
     "ResumeCampaign",
     "SUPPORTED_SCHEMA_VERSIONS",
     "StartCampaign",

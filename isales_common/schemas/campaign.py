@@ -13,7 +13,7 @@ from pydantic import Field
 
 from isales_common.enums import ContinuousInterruptionStrategy
 from isales_common.schemas._base import AppModel, ORMModel
-from isales_common.schemas.jsonb import ExtractionField, TimeWindow
+from isales_common.schemas.jsonb import ExtractionField, RoutingRule, TimeWindow
 
 
 class CampaignBase(AppModel):
@@ -24,6 +24,11 @@ class CampaignBase(AppModel):
     concurrency: int = Field(ge=1)
     time_windows: list[TimeWindow] = Field(default_factory=list)
     extraction_fields: list[ExtractionField] = Field(default_factory=list)
+
+    # multi-referee routing (engine-multi-referee-and-restructure D3/D4/D5).
+    routing_rules: list[RoutingRule] = Field(default_factory=list)
+    max_continuous_restructure: int = Field(default=2, ge=0)
+    primary_referee_label: str | None = Field(default=None, max_length=64)
 
     # silence-activation
     max_silence_activations: int = Field(ge=0)
@@ -98,6 +103,9 @@ class CampaignUpdate(AppModel):
     concurrency: int | None = Field(default=None, ge=1)
     time_windows: list[TimeWindow] | None = None
     extraction_fields: list[ExtractionField] | None = None
+    routing_rules: list[RoutingRule] | None = None
+    max_continuous_restructure: int | None = Field(default=None, ge=0)
+    primary_referee_label: str | None = Field(default=None, max_length=64)
     max_silence_activations: int | None = None
     silence_threshold_ms: int | None = None
     silence_phrases: list[str] | None = None

@@ -43,15 +43,27 @@ class PromptVersionRef(AppModel):
     prompt_version_id: int
 
 
+class RefereePromptVersionRef(PromptVersionRef):
+    """A referee slot snapshot, tagged with its routing ``label`` so a call is
+    reproducible even after the campaign's referees are re-seeded (id changes,
+    label is stable — engine-multi-referee-and-restructure D1)."""
+
+    label: str | None = None
+
+
 class PromptVersionsSnapshot(AppModel):
     """Mirrors ``call_record.prompt_versions`` JSONB shape (role-prompt spec).
 
     pipeline-stream-and-referee: dual-LLM slots — ``main_llm`` / ``referee_llm``
     / ``extractor_llm`` (was ``role_llms[]`` / ``judge_llm`` / ``polish_llm``).
+
+    engine-multi-referee-and-restructure: single ``referee_llm`` → list
+    ``referee_llms`` (one per configured referee); new optional ``restructure_llm``.
     """
 
     main_llm: PromptVersionRef | None = None
-    referee_llm: PromptVersionRef | None = None
+    referee_llms: list[RefereePromptVersionRef] = Field(default_factory=list)
+    restructure_llm: PromptVersionRef | None = None
     extractor_llm: PromptVersionRef | None = None
     wrap_up_appended: bool = False
 

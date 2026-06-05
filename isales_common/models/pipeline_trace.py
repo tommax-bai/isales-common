@@ -8,22 +8,28 @@ One row per (call_record_id, turn_id). Stored separately from
 pipeline-stream-and-referee: the three-layer role_candidates / judge_results /
 polish_* field set is replaced by main_* (streaming reply) + referee_*
 (side-band decision) + first_audio_ms (latency monitoring).
+
+engine-multi-referee-and-restructure: the single referee_* fields are replaced
+by ``referee_results`` (JSONB array, one element per referee) + ``matched_rule``
+(the routing rule that won) + restructure_* (which re-voice turn, if any).
 """
 
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import (
     BigInteger,
     Boolean,
     DateTime,
-    Float,
     ForeignKey,
     Integer,
     PrimaryKeyConstraint,
+    String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from isales_common.models.base import Base, TimestampMixin
@@ -52,11 +58,20 @@ class PipelineTrace(Base, TimestampMixin):
     # fallback was used (pipeline-remove-streaming-fallback removal trigger).
     main_fallback_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    # referee LLM (side-band enum decision, parallel to main TTS playback).
-    referee_decision: Mapped[str | None] = mapped_column(Text, nullable=True)
-    referee_goal_type: Mapped[str | None] = mapped_column(Text, nullable=True)
-    referee_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    referee_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # referee LLMs (N side-band judges run in parallel to main TTS playback).
+    # Each element: {label, category, confidence, duration_ms}; category carries
+    # the referee prompt's enum value or a fail-open marker
+    # ("timeout"/"invalid"/"low_confidence").
+    referee_results: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    # The routing rule the decider matched this turn ({referee, match, action}),
+    # or NULL when no rule matched (→ continue).
+    matched_rule: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+
+    # restructure turn record (engine-multi-referee-and-restructure).
+    restructure_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # one of "last_reply" / "interrupt_remaining" / "low_confidence".
+    restructure_trigger: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    restructure_source_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Latency monitoring: ms from PROCESSING entry to first PCM chunk played.
     first_audio_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)

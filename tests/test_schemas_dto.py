@@ -180,6 +180,9 @@ class TestCampaignSchemas:
             filler_enabled=False,
             asr_eos_silence_ms=250,
             filler_delay_ms=500,
+            routing_rules=[],
+            max_continuous_restructure=2,
+            primary_referee_label=None,
             created_at=_now(),
             updated_at=_now(),
         )
@@ -284,10 +287,18 @@ class TestCallSchemas:
             main_tokens_in=120,
             main_tokens_out=18,
             main_fallback_used=False,
-            referee_decision="continue",
-            referee_goal_type=None,
-            referee_confidence=0.82,
-            referee_duration_ms=310,
+            referee_results=[
+                {
+                    "label": "main_judge",
+                    "category": "continue",
+                    "confidence": 0.82,
+                    "duration_ms": 310,
+                },
+            ],
+            matched_rule=None,
+            restructure_active=False,
+            restructure_trigger=None,
+            restructure_source_text=None,
             first_audio_ms=480,
             error=None,
             created_at=_now(),
@@ -295,7 +306,8 @@ class TestCallSchemas:
         )
         dto = PipelineTraceRead.model_validate(orm)
         assert dto.main_reply_text == "您好，请问现在方便吗？"
-        assert dto.referee_decision == "continue"
+        assert dto.referee_results[0]["category"] == "continue"
+        assert dto.restructure_active is False
         assert dto.first_audio_ms == 480
         assert dto.main_fallback_used is False
 

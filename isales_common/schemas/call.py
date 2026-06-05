@@ -77,11 +77,14 @@ class PipelineTraceRead(ORMModel):
     main_tokens_out: int | None = None
     main_fallback_used: bool = False
 
-    # referee side-band LLM.
-    referee_decision: str | None = None
-    referee_goal_type: str | None = None
-    referee_confidence: float | None = None
-    referee_duration_ms: int | None = None
+    # referee side-band LLMs (N parallel judges) + routing decision.
+    referee_results: list[Any] = Field(default_factory=list)
+    matched_rule: dict[str, Any] | None = None
+
+    # restructure (re-voice) turn record.
+    restructure_active: bool = False
+    restructure_trigger: str | None = None
+    restructure_source_text: str | None = None
 
     first_audio_ms: int | None = None
     error: str | None = None

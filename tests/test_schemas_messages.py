@@ -32,6 +32,7 @@ from isales_common.schemas.messages import (
     PauseCampaign,
     PromptVersionRef,
     PromptVersionsSnapshot,
+    RefereePromptVersionRef,
     ResumeCampaign,
     StartCampaign,
     StatusChanged,
@@ -78,7 +79,10 @@ def _sample_dial_request() -> DialRequest:
         ],
         prompt_versions=PromptVersionsSnapshot(
             main_llm=PromptVersionRef(role_config_id=1, prompt_version_id=5),
-            referee_llm=PromptVersionRef(role_config_id=2, prompt_version_id=7),
+            referee_llms=[
+                RefereePromptVersionRef(role_config_id=2, prompt_version_id=7, label="main_judge"),
+            ],
+            restructure_llm=PromptVersionRef(role_config_id=10, prompt_version_id=11),
             extractor_llm=PromptVersionRef(role_config_id=3, prompt_version_id=9),
             wrap_up_appended=False,
         ),
