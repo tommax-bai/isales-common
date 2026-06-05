@@ -22,9 +22,13 @@ class Campaign(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    voice_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("voice_model.id"), nullable=True
-    )
+    # voice_id holds the vendor speaker string directly (e.g.
+    # "zh_female_xiaohe_uranus_bigtts"), typed by the admin in the campaign
+    # form. Was a BigInteger FK to voice_model.id; switched to a plain string
+    # (campaign-greeting-tts-preview § 4C) so voices need not be catalogued in
+    # the DB — the engine passes it straight to the TTS provider as the
+    # speaker, and the web 试听 sends it verbatim. NULL → TTS default speaker.
+    voice_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     default_replies: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     concurrency: Mapped[int] = mapped_column(Integer, nullable=False, default=1)

@@ -18,7 +18,7 @@ from isales_common.schemas.jsonb import ExtractionField, TimeWindow
 
 class CampaignBase(AppModel):
     name: str = Field(min_length=1, max_length=255)
-    voice_id: int | None = None
+    voice_id: str | None = Field(default=None, max_length=128)
 
     default_replies: list[str] = Field(default_factory=list)
     concurrency: int = Field(ge=1)
@@ -93,7 +93,7 @@ class CampaignUpdate(AppModel):
     """All fields optional — patch semantics."""
 
     name: str | None = Field(default=None, min_length=1, max_length=255)
-    voice_id: int | None = None
+    voice_id: str | None = Field(default=None, max_length=128)
     default_replies: list[str] | None = None
     concurrency: int | None = Field(default=None, ge=1)
     time_windows: list[TimeWindow] | None = None
