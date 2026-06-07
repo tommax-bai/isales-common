@@ -183,6 +183,10 @@ class TestCampaignSchemas:
             routing_rules=[],
             max_continuous_restructure=2,
             primary_referee_label=None,
+            tools={},
+            persona_fanout_cap=1,
+            referee_timeout_ms=600,
+            referee_fail_open_route="main",
             created_at=_now(),
             updated_at=_now(),
         )

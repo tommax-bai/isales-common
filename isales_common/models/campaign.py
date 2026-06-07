@@ -58,6 +58,20 @@ class Campaign(Base, TimestampMixin):
     # restructure fallback (D5 case c). NULL → no low-confidence restructure.
     primary_referee_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
+    # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
+    # {type: hangup|transfer, ...} discriminated union (schemas.jsonb.tool_config);
+    # referenced by routing_rules {type: tool, tool: <alias>}. persona_fanout_cap:
+    # total speculative dialogue routes per turn INCLUDING main, clamped [1,3];
+    # 1 = main only, no speculation (opt-in default off). referee_timeout_ms:
+    # pre-reply gating timeout. referee_fail_open_route: route released on gate
+    # timeout/invalid/low-confidence (default "main", already eager-buffered).
+    tools: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    persona_fanout_cap: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    referee_timeout_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=600)
+    referee_fail_open_route: Mapped[str] = mapped_column(
+        String(64), nullable=False, default="main"
+    )
+
     # wrap-up (goal-achievement)
     wrap_up_max_rounds: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
     wrap_up_max_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=60)

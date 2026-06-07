@@ -23,11 +23,14 @@ class CallStatus(StrEnum):
 # engine-multi-referee-and-restructure: referee may now be configured N rows
 # per campaign (each with its own prompt + enum semantics); restructure is a
 # new optional slot that re-voices the last reply / barge-in remainder.
+# engine-tools-multidialogue-gating: persona is an opt-in speculative dialogue
+# role (label required, unique per campaign) for eager multi-dialogue gating.
 class RoleKind(StrEnum):
     MAIN = "main"
     REFEREE = "referee"
     EXTRACTOR = "extractor"
     RESTRUCTURE = "restructure"
+    PERSONA = "persona"
 
 
 class PromptScopeType(StrEnum):
@@ -35,6 +38,7 @@ class PromptScopeType(StrEnum):
     REFEREE = "referee"
     EXTRACTOR = "extractor"
     RESTRUCTURE = "restructure"
+    PERSONA = "persona"
 
 
 class TransferStatus(StrEnum):
@@ -153,3 +157,7 @@ class HangupCause(StrEnum):
     MARKED_FOR_HANDOFF = "marked_for_handoff"
     NO_PROGRESS_TIMEOUT = "no_progress_timeout"
     MANUAL_HANGUP = "manual_hangup"
+    # engine-tools-multidialogue-gating: AI proactively hangs up via a referee
+    # gating verdict selecting tool:hangup. retry-followup classifies this into
+    # the no-auto-redial bucket.
+    REFEREE_HANGUP = "referee_hangup"

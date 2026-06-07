@@ -67,6 +67,15 @@ class PipelineTrace(Base, TimestampMixin):
     # or NULL when no rule matched (→ continue).
     matched_rule: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
+    # gating route selection (engine-tools-multidialogue-gating). selected_route_id:
+    # the route the gate released this turn ("main" / "persona:<label>" / "closing"
+    # / "tool:hangup" ...). selected_route_kind: "dialogue" | "tool".
+    # persona_candidates: labels speculatively run this turn (NULL or ["main"] when
+    # no fan-out).
+    selected_route_id: Mapped[str | None] = mapped_column(String(96), nullable=True)
+    selected_route_kind: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    persona_candidates: Mapped[list[Any] | None] = mapped_column(JSONB, nullable=True)
+
     # restructure turn record (engine-multi-referee-and-restructure).
     restructure_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     # one of "last_reply" / "interrupt_remaining" / "low_confidence".

@@ -13,7 +13,7 @@ from pydantic import Field
 
 from isales_common.enums import ContinuousInterruptionStrategy
 from isales_common.schemas._base import AppModel, ORMModel
-from isales_common.schemas.jsonb import ExtractionField, RoutingRule, TimeWindow
+from isales_common.schemas.jsonb import ExtractionField, RoutingRule, TimeWindow, ToolConfig
 
 
 class CampaignBase(AppModel):
@@ -29,6 +29,15 @@ class CampaignBase(AppModel):
     routing_rules: list[RoutingRule] = Field(default_factory=list)
     max_continuous_restructure: int = Field(default=2, ge=0)
     primary_referee_label: str | None = Field(default=None, max_length=64)
+
+    # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
+    # hangup/transfer config; persona_fanout_cap: total speculative routes incl
+    # main, clamp [1,3]; referee_timeout_ms: gating timeout; referee_fail_open_route:
+    # route released on gate timeout/invalid/low-confidence.
+    tools: dict[str, ToolConfig] = Field(default_factory=dict)
+    persona_fanout_cap: int = Field(default=1, ge=1, le=3)
+    referee_timeout_ms: int = Field(default=600, gt=0)
+    referee_fail_open_route: str = Field(default="main", min_length=1, max_length=64)
 
     # silence-activation
     max_silence_activations: int = Field(ge=0)
@@ -106,6 +115,10 @@ class CampaignUpdate(AppModel):
     routing_rules: list[RoutingRule] | None = None
     max_continuous_restructure: int | None = Field(default=None, ge=0)
     primary_referee_label: str | None = Field(default=None, max_length=64)
+    tools: dict[str, ToolConfig] | None = None
+    persona_fanout_cap: int | None = Field(default=None, ge=1, le=3)
+    referee_timeout_ms: int | None = Field(default=None, gt=0)
+    referee_fail_open_route: str | None = Field(default=None, min_length=1, max_length=64)
     max_silence_activations: int | None = None
     silence_threshold_ms: int | None = None
     silence_phrases: list[str] | None = None

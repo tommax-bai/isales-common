@@ -51,6 +51,14 @@ class RefereePromptVersionRef(PromptVersionRef):
     label: str | None = None
 
 
+class PersonaPromptVersionRef(PromptVersionRef):
+    """A persona dialogue slot snapshot, tagged with its routing ``label``
+    (engine-tools-multidialogue-gating). Mirrors ``RefereePromptVersionRef``;
+    label is the stable id routing rules bind to via ``{type: route, to:...}``."""
+
+    label: str | None = None
+
+
 class PromptVersionsSnapshot(AppModel):
     """Mirrors ``call_record.prompt_versions`` JSONB shape (role-prompt spec).
 
@@ -63,6 +71,8 @@ class PromptVersionsSnapshot(AppModel):
 
     main_llm: PromptVersionRef | None = None
     referee_llms: list[RefereePromptVersionRef] = Field(default_factory=list)
+    # engine-tools-multidialogue-gating: opt-in speculative dialogue personas.
+    persona_llms: list[PersonaPromptVersionRef] = Field(default_factory=list)
     restructure_llm: PromptVersionRef | None = None
     extractor_llm: PromptVersionRef | None = None
     wrap_up_appended: bool = False

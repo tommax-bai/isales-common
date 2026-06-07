@@ -5,11 +5,19 @@ from isales_common.schemas.jsonb.extraction_field import ExtractionField, Extrac
 from isales_common.schemas.jsonb.retry_policy import RetryPolicy
 from isales_common.schemas.jsonb.routing_rule import (
     RestructureAction,
+    RoutePersonaAction,
+    RouteToolAction,
     RoutingAction,
     RoutingRule,
+    ThenState,
     TransitionAction,
 )
 from isales_common.schemas.jsonb.time_window import TimeWindow, WeekDay
+from isales_common.schemas.jsonb.tool_config import (
+    HangupToolConfig,
+    ToolConfig,
+    TransferToolConfig,
+)
 from isales_common.schemas.jsonb.transcript import (
     AIReplyEvent,
     DefaultReplyUsedEvent,
@@ -37,16 +45,22 @@ __all__ = [
     "GoalAchievedEvent",
     "GreetingEvent",
     "HangupEvent",
+    "HangupToolConfig",
     "InterruptionEvent",
     "RestructureAction",
     "RetryPolicy",
+    "RoutePersonaAction",
+    "RouteToolAction",
     "RoutingAction",
     "RoutingRule",
     "SilenceActivationEvent",
+    "ThenState",
     "TimeWindow",
+    "ToolConfig",
     "TranscriptEvent",
     "TransferInitiatedEvent",
     "TransferMarkedEvent",
+    "TransferToolConfig",
     "TransitionAction",
     "UserSpeechEvent",
     "WeekDay",

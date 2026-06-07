@@ -17,7 +17,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from isales_common.schemas._base import AppModel
-from isales_common.schemas.jsonb import RoutingRule
+from isales_common.schemas.jsonb import RoutingRule, ToolConfig
 
 
 class _SlotSpec(AppModel):
@@ -52,6 +52,16 @@ class RestructureSpec(_SlotSpec):
     label: str
 
 
+class PersonaSpec(_SlotSpec):
+    """An opt-in speculative dialogue persona slot (engine-tools-multidialogue-
+    gating). ``label`` is the stable id routing rules bind to via
+    ``{type: route, to: <label>}``. Runs eagerly in parallel with main; the
+    referee gate selects one and cancels the rest.
+    """
+
+    label: str
+
+
 class ExtractorSpec(_SlotSpec):
     """Post-call extractor LLM slot (structured-fields JSON)."""
 
@@ -75,3 +85,13 @@ class PipelineConfig(AppModel):
     max_continuous_restructure: int = 2
     primary_referee_label: str | None = None
     short_reply_active: bool = False
+
+    # gating + multi-persona (engine-tools-multidialogue-gating). personas: opt-in
+    # speculative dialogue slots run in parallel with main; the gate selects one.
+    # tools: alias → hangup/transfer config referenced by routing rules.
+    # persona_fanout_cap: total speculative routes incl main, clamp [1,3].
+    personas: list[PersonaSpec] = Field(default_factory=list)
+    tools: dict[str, ToolConfig] = Field(default_factory=dict)
+    persona_fanout_cap: int = 1
+    referee_timeout_ms: int = 600
+    referee_fail_open_route: str = "main"

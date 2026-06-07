@@ -18,8 +18,14 @@ from isales_common.schemas.jsonb import (
 
 def test_rolekind_has_restructure():
     assert RoleKind.RESTRUCTURE == "restructure"
-    assert {k.value for k in RoleKind} == {"main", "referee", "extractor", "restructure"}
-    # PromptScopeType mirrors RoleKind so restructure prompts can be versioned.
+    assert {k.value for k in RoleKind} == {
+        "main",
+        "referee",
+        "extractor",
+        "restructure",
+        "persona",
+    }
+    # PromptScopeType mirrors RoleKind so restructure / persona prompts can be versioned.
     assert {k.value for k in RoleKind} == {p.value for p in PromptScopeType}
 
 
