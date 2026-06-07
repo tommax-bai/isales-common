@@ -18,16 +18,12 @@ from isales_common.enums import (
 
 
 def test_call_status_values():
+    # engine-tools-multidialogue-gating: collapsed 11 → 4 coarse lifecycle
+    # labels. The fine in-call phases moved to engine-internal flags / transcript
+    # events and are no longer CallStatus members.
     expected = {
         "init",
-        "greeting",
-        "listening",
-        "speaking",
-        "interrupted",
-        "filler",
-        "processing",
-        "wrapping_up",
-        "activating",
+        "in_call",
         "transferring",
         "end",
     }

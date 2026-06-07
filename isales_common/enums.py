@@ -4,15 +4,21 @@ from enum import StrEnum
 
 
 class CallStatus(StrEnum):
+    """Coarse, externally-observed call lifecycle (engine-tools-multidialogue-gating).
+
+    Collapsed from the old 11-value FSM-as-controller set to 4 lifecycle labels.
+    The fine-grained in-call phases (greeting / listening / processing / speaking /
+    interrupted / filler / wrapping_up / activating) are NO LONGER call states —
+    they are engine-internal event/role concerns and live in transcript events,
+    not here. ``in_call`` covers the whole conversation; only a human-handoff
+    (``transferring``) and the lifecycle bookends (``init`` / ``end``) are
+    distinct. Stored as VARCHAR (call_record.status String(16)) — no PG enum, so
+    the collapse needs no DB migration; pre-collapse rows holding removed values
+    are acceptable orphans (v1 has no production data).
+    """
+
     INIT = "init"
-    GREETING = "greeting"
-    LISTENING = "listening"
-    SPEAKING = "speaking"
-    INTERRUPTED = "interrupted"
-    FILLER = "filler"
-    PROCESSING = "processing"
-    WRAPPING_UP = "wrapping_up"
-    ACTIVATING = "activating"
+    IN_CALL = "in_call"
     TRANSFERRING = "transferring"
     END = "end"
 

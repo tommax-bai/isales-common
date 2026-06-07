@@ -146,7 +146,7 @@ def test_engine_event_round_trip_all_subtypes():
     adapter = TypeAdapter(EngineEvent)
     base = {"call_record_id": 100}
     subs: list[BaseMessage] = [
-        StatusChanged(**base, status=CallStatus.LISTENING),
+        StatusChanged(**base, status=CallStatus.IN_CALL),
         ASRPartial(**base, text="he", timestamp_ms=100),
         ASRFinal(**base, text="hello", timestamp_ms=400),
         TranscriptAppended(**base, event_type="user_speech", ts=400),
