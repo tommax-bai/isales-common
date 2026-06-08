@@ -89,11 +89,23 @@ class RouteToolAction(AppModel):
 
     The alias existence check is done at the api layer (422
     routing_rule_unknown_tool); this schema only enforces shape.
+
+    ``closing_phrase`` is a per-rule, single-sentence override for ``tool:
+    hangup``: when set, it overrides ``HangupToolConfig.closing_phrase`` so one
+    hangup tool can be reused across keywords (e.g. OFFENSIVE / HANGUP) with
+    different closing phrases. When omitted the engine falls back to the tool's
+    own ``closing_phrase``; both empty → direct hangup, no phrase. Only
+    meaningful for ``tool: hangup``. (engine-tools-multidialogue-gating §11.)
     """
 
     type: Literal["tool"] = "tool"
     tool: str = Field(min_length=1, max_length=64, description="campaign.tools alias")
     then_state: ThenState | None = None
+    closing_phrase: str | None = Field(
+        default=None,
+        max_length=512,
+        description="per-rule hangup closing phrase; overrides HangupToolConfig.closing_phrase",
+    )
 
 
 # Discriminated by ``type``. Legacy transition/restructure kept (removal-tracked
