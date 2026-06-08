@@ -22,8 +22,8 @@ from isales_common.schemas._base import AppModel
 #: existing referee-driven transitions (goal-achievement / human-handoff specs).
 TransitionTarget = Literal["goal_achieved", "transfer", "customer_decline"]
 
-#: Where restructure draws its InterruptText from (D5). ``low_confidence`` is an
-#: internal trigger, not a user-configurable source, so it is excluded here.
+#: Where restructure draws its InterruptText from (D5): the last AI reply, or the
+#: text left unspoken when the user barged in.
 RestructureSource = Literal["last_reply", "interrupt_remaining"]
 
 #: State the StatusProjector projects after a route fires (engine-tools-

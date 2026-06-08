@@ -83,7 +83,6 @@ class PipelineConfig(AppModel):
     extractor: ExtractorSpec
     routing_rules: list[RoutingRule] = Field(default_factory=list)
     max_continuous_restructure: int = 2
-    primary_referee_label: str | None = None
     short_reply_active: bool = False
 
     # gating + multi-persona (engine-tools-multidialogue-gating). personas: opt-in

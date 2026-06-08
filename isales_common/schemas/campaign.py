@@ -13,7 +13,13 @@ from pydantic import Field
 
 from isales_common.enums import ContinuousInterruptionStrategy
 from isales_common.schemas._base import AppModel, ORMModel
-from isales_common.schemas.jsonb import ExtractionField, RoutingRule, TimeWindow, ToolConfig
+from isales_common.schemas.jsonb import (
+    ExtractionField,
+    InterruptionRule,
+    RoutingRule,
+    TimeWindow,
+    ToolConfig,
+)
 
 
 class CampaignBase(AppModel):
@@ -28,7 +34,6 @@ class CampaignBase(AppModel):
     # multi-referee routing (engine-multi-referee-and-restructure D3/D4/D5).
     routing_rules: list[RoutingRule] = Field(default_factory=list)
     max_continuous_restructure: int = Field(default=2, ge=0)
-    primary_referee_label: str | None = Field(default=None, max_length=64)
 
     # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
     # hangup/transfer config; persona_fanout_cap: total speculative routes incl
@@ -68,6 +73,11 @@ class CampaignBase(AppModel):
     asr_eos_silence_ms: int | None = None
 
     # interruption-detection
+    # interruption_rules: composable barge-in rule tree (engine-interruption-rule-
+    # tree). NULL → engine synthesizes a backward-compat default tree from
+    # interruption_whitelist + interruption_min_duration_ms (legacy columns,
+    # removal tracked for a followup once campaigns migrate to explicit trees).
+    interruption_rules: InterruptionRule | None = None
     interruption_whitelist: list[str] = Field(default_factory=list)
     interruption_min_duration_ms: int = Field(ge=0)
     max_continuous_interruptions: int = Field(ge=0)
@@ -114,7 +124,6 @@ class CampaignUpdate(AppModel):
     extraction_fields: list[ExtractionField] | None = None
     routing_rules: list[RoutingRule] | None = None
     max_continuous_restructure: int | None = Field(default=None, ge=0)
-    primary_referee_label: str | None = Field(default=None, max_length=64)
     tools: dict[str, ToolConfig] | None = None
     persona_fanout_cap: int | None = Field(default=None, ge=1, le=3)
     referee_timeout_ms: int | None = Field(default=None, gt=0)
@@ -130,6 +139,7 @@ class CampaignUpdate(AppModel):
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None
     greeting: str | None = None
+    interruption_rules: InterruptionRule | None = None
     interruption_whitelist: list[str] | None = None
     interruption_min_duration_ms: int | None = None
     max_continuous_interruptions: int | None = None

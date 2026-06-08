@@ -58,7 +58,6 @@ def test_pipeline_config_roundtrip():
             ),
         ],
         max_continuous_restructure=3,
-        primary_referee_label="intent",
         short_reply_active=True,
     )
     dumped = cfg.model_dump()
@@ -66,7 +65,6 @@ def test_pipeline_config_roundtrip():
     assert [r["label"] for r in dumped["referees"]] == ["intent", "reject"]
     assert dumped["restructure"]["label"] == "rewrite"
     assert dumped["max_continuous_restructure"] == 3
-    assert dumped["primary_referee_label"] == "intent"
     assert PipelineConfig.model_validate(dumped) == cfg
 
 
@@ -79,7 +77,6 @@ def test_pipeline_config_defaults():
     assert cfg.restructure is None
     assert cfg.routing_rules == []
     assert cfg.max_continuous_restructure == 2
-    assert cfg.primary_referee_label is None
     assert cfg.short_reply_active is False
 
 

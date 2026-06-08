@@ -54,9 +54,6 @@ class Campaign(Base, TimestampMixin):
     # restructure turns before falling back to default_replies / continuous-
     # interruption handling, so the AI doesn't sound like it's on repeat.
     max_continuous_restructure: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
-    # Which referee (by label) is the "primary" judge used for the low-confidence
-    # restructure fallback (D5 case c). NULL → no low-confidence restructure.
-    primary_referee_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
     # {type: hangup|transfer, ...} discriminated union (schemas.jsonb.tool_config);
@@ -102,6 +99,13 @@ class Campaign(Base, TimestampMixin):
     asr_eos_silence_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # interruption-detection
+    # interruption_rules: composable barge-in rule tree (engine-interruption-rule-
+    # tree, port of voxen core/interruption/). NULL → engine synthesizes a
+    # backward-compat default tree from interruption_whitelist +
+    # interruption_min_duration_ms (legacy columns; removal tracked for a followup
+    # once campaigns migrate to explicit trees). Element shape validated by
+    # schemas.jsonb.InterruptionRule.
+    interruption_rules: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     interruption_whitelist: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     interruption_min_duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=400)
     max_continuous_interruptions: Mapped[int] = mapped_column(Integer, nullable=False, default=3)

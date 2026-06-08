@@ -60,8 +60,7 @@ class PipelineTrace(Base, TimestampMixin):
 
     # referee LLMs (N side-band judges run in parallel to main TTS playback).
     # Each element: {label, category, confidence, duration_ms}; category carries
-    # the referee prompt's enum value or a fail-open marker
-    # ("timeout"/"invalid"/"low_confidence").
+    # the referee prompt's enum value or a fail-open marker ("timeout"/"invalid").
     referee_results: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     # The routing rule the decider matched this turn ({referee, match, action}),
     # or NULL when no rule matched (→ continue).
@@ -78,7 +77,7 @@ class PipelineTrace(Base, TimestampMixin):
 
     # restructure turn record (engine-multi-referee-and-restructure).
     restructure_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    # one of "last_reply" / "interrupt_remaining" / "low_confidence".
+    # one of "last_reply" / "interrupt_remaining".
     restructure_trigger: Mapped[str | None] = mapped_column(String(32), nullable=True)
     restructure_source_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 

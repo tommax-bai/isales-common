@@ -182,7 +182,6 @@ class TestCampaignSchemas:
             filler_delay_ms=500,
             routing_rules=[],
             max_continuous_restructure=2,
-            primary_referee_label=None,
             tools={},
             persona_fanout_cap=1,
             referee_timeout_ms=600,
