@@ -4,6 +4,22 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.8.5] — 2026-06-09
+
+### Removed (BREAKING)
+
+- **预约 / 音色目录 / 转人工任务 三个 vestigial 功能整体下线**（change
+  `admin-prune-vestigial-features`）。删除 ORM 模型 `Appointment` / `VoiceModel`
+  / `HandoffTask`、对应 schemas，枚举 `AppointmentStatus` / `AppointmentAction`
+  / `HandoffStatus`，以及 `LeadStatus.APPOINTED` / `LeadStatus.VISITED`
+  （`LeadStatus.LOST` 保留）。alembic 迁移 `c4d5e6f7a8b9` DROP 三张表
+  `appointment` / `voice_model` / `handoff_task`（均为 write-never / 无运行时
+  消费方；v1.0 无生产数据，drop 安全）。`downgrade()` 结构性重建三表。
+- **`TransferMarkedEvent.handoff_task_id` 死字段移除**：转人工不再写
+  `handoff_task` 记录，该恒为 0 的字段随表删除。引擎转人工检测（标记
+  `transfer_status=marked_for_handoff` + 挂断）与 worker `lead.status=transferred`
+  信号保持不变；`TransferTriggerType` 枚举保留（转人工触发词汇规范定义）。
+
 ## [v0.5.2] — 2026-06-04
 
 ### Added

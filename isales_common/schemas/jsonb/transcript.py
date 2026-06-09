@@ -77,7 +77,6 @@ class TransferInitiatedEvent(_BaseEvent):
 
 class TransferMarkedEvent(_BaseEvent):
     type: Literal["transfer_marked"] = "transfer_marked"
-    handoff_task_id: int
 
 
 class GoalAchievedEvent(_BaseEvent):

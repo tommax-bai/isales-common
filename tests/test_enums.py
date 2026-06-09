@@ -7,7 +7,6 @@ from isales_common.enums import (
     ContinuousInterruptionStrategy,
     DeviceStatus,
     GenerationStatus,
-    HandoffStatus,
     LeadStatus,
     PromptScopeType,
     RoleKind,
@@ -36,10 +35,6 @@ def test_role_kind_matches_prompt_scope():
 
 def test_transfer_trigger_types():
     assert {t.value for t in TransferTriggerType} == {"keyword", "intent", "round", "llm"}
-
-
-def test_handoff_status_values():
-    assert {s.value for s in HandoffStatus} == {"pending", "in_progress", "completed"}
 
 
 def test_device_status_full_set():
@@ -75,9 +70,6 @@ def test_lead_status():
         "follow_up_exhausted",
         "do_not_call",
         "transferred",
-        # appointment lifecycle terminals added by web-admin-ui-redesign
-        "appointed",
-        "visited",
         "lost",
     }
 

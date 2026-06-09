@@ -26,7 +26,7 @@ class TTSProvider(ABC):
     ) -> AsyncIterator[bytes]:
         """Synthesise ``text`` with the given ``voice_id``.
 
-        ``voice_id`` is opaque to the ABC; it comes from the
-        ``voice_model.voice_id`` column (data-model spec).
+        ``voice_id`` is opaque to the ABC; it is the vendor speaker string
+        carried free-text on ``campaign.voice_id`` (data-model spec).
         """
         raise NotImplementedError

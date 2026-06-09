@@ -59,12 +59,6 @@ class TransferTriggerType(StrEnum):
     LLM = "llm"
 
 
-class HandoffStatus(StrEnum):
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-
-
 class DeviceStatus(StrEnum):
     UNKNOWN = "unknown"
     DETECTED = "detected"
@@ -99,25 +93,8 @@ class LeadStatus(StrEnum):
     FOLLOW_UP_EXHAUSTED = "follow_up_exhausted"
     DO_NOT_CALL = "do_not_call"
     TRANSFERRED = "transferred"
-    # appointment lifecycle terminals — set by api when creating / completing
-    # an appointment for this lead. See appointment spec § "Appointment 与
-    # Lead 的状态联动". Column is String(24); no PG enum DDL needed.
-    APPOINTED = "appointed"
-    VISITED = "visited"
+    # 已流失：运营人员在 leads view 手动标注的终态。Column is String(24)。
     LOST = "lost"
-
-
-class AppointmentStatus(StrEnum):
-    PENDING = "pending"
-    CONFIRMED = "confirmed"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-
-
-class AppointmentAction(StrEnum):
-    CONFIRM = "confirm"
-    COMPLETE = "complete"
-    CANCEL = "cancel"
 
 
 class CallbackStatus(StrEnum):
@@ -161,6 +138,13 @@ class HangupCause(StrEnum):
     WRAP_UP_COMPLETED = "wrap_up_completed"
     SILENCE_MAX_REACHED = "silence_max_reached"
     MARKED_FOR_HANDOFF = "marked_for_handoff"
+    # silence-drop-no-progress-timeout: the config-driven
+    # ``campaign.max_no_progress_seconds`` timer that produced this cause was
+    # removed (silence-timeout hangup is now solely the silence-max path →
+    # ``silence_max_reached``). This member is RETAINED because it remains the
+    # engine ``run_session`` / worker ``session_runner`` internal-error fallback
+    # cause and classifies under retry-followup; historical call_record rows may
+    # also carry it. It is no longer a config-driven business hangup reason.
     NO_PROGRESS_TIMEOUT = "no_progress_timeout"
     MANUAL_HANGUP = "manual_hangup"
     # engine-tools-multidialogue-gating: AI proactively hangs up via a referee

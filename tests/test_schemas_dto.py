@@ -18,13 +18,11 @@ from isales_common.enums import (
     CallStatus,
     ContinuousInterruptionStrategy,
     DeviceStatus,
-    HandoffStatus,
     LeadStatus,
     PromptScopeType,
     RoleKind,
     SimCardStatus,
     TransferStatus,
-    TransferTriggerType,
 )
 from isales_common.models import (
     Agent,
@@ -34,13 +32,11 @@ from isales_common.models import (
     CallSummary,
     Campaign,
     Device,
-    HandoffTask,
     Lead,
     PipelineTrace,
     PromptVersion,
     RoleConfig,
     SimCard,
-    VoiceModel,
 )
 from isales_common.schemas.agent import AgentRead
 from isales_common.schemas.call import (
@@ -59,7 +55,6 @@ from isales_common.schemas.device import (
     DeviceSelectRequest,
     DeviceSelectResponse,
 )
-from isales_common.schemas.handoff import HandoffTaskRead
 from isales_common.schemas.jsonb import (
     ExtractionField,
     RetryPolicy,
@@ -69,7 +64,6 @@ from isales_common.schemas.lead import LeadCreate, LeadRead
 from isales_common.schemas.prompt import PromptVersionRead
 from isales_common.schemas.role_config import RoleConfigRead
 from isales_common.schemas.sim_card import SimCardRead
-from isales_common.schemas.voice_model import VoiceModelRead
 
 
 def _now() -> datetime:
@@ -88,7 +82,6 @@ def _campaign_kwargs() -> dict:
         "silence_threshold_ms": 3000,
         "silence_phrases": [],
         "silence_hangup_phrase": None,
-        "max_no_progress_seconds": None,
         "wrap_up_max_rounds": 3,
         "wrap_up_max_seconds": 60,
         "wrap_up_closing_phrases": [],
@@ -152,7 +145,6 @@ class TestCampaignSchemas:
             silence_threshold_ms=3000,
             silence_phrases=[],
             silence_hangup_phrase=None,
-            max_no_progress_seconds=None,
             wrap_up_max_rounds=3,
             wrap_up_max_seconds=60,
             wrap_up_closing_phrases=[],
@@ -380,18 +372,6 @@ class TestCallbackSchemas:
 
 
 class TestMiscReadSchemas:
-    def test_voice_model(self):
-        orm = VoiceModel(
-            id=1,
-            name="v",
-            provider="elevenlabs",
-            voice_id="abc",
-            sample_url=None,
-            created_at=_now(),
-            updated_at=_now(),
-        )
-        assert VoiceModelRead.model_validate(orm).provider == "elevenlabs"
-
     def test_role_config(self):
         orm = RoleConfig(
             id=1,
@@ -478,19 +458,3 @@ class TestMiscReadSchemas:
             updated_at=_now(),
         )
         assert AgentRead.model_validate(orm).status == AgentStatus.ONLINE
-
-    def test_handoff(self):
-        orm = HandoffTask(
-            id=1,
-            call_record_id=1,
-            agent_id=None,
-            trigger_type=TransferTriggerType.KEYWORD,
-            trigger_detail="转人工",
-            status=HandoffStatus.PENDING,
-            picked_up_at=None,
-            completed_at=None,
-            created_at=_now(),
-            updated_at=_now(),
-        )
-        dto = HandoffTaskRead.model_validate(orm)
-        assert dto.trigger_type == TransferTriggerType.KEYWORD
