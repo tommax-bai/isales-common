@@ -77,7 +77,7 @@ class PipelineTraceRead(ORMModel):
     main_tokens_out: int | None = None
     main_fallback_used: bool = False
 
-    # referee side-band LLMs (N parallel judges) + routing decision.
+    # referee gating LLMs (N parallel judges) + routing decision.
     referee_results: list[Any] = Field(default_factory=list)
     matched_rule: dict[str, Any] | None = None
 

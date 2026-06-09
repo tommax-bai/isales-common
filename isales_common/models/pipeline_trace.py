@@ -7,7 +7,7 @@ One row per (call_record_id, turn_id). Stored separately from
 
 pipeline-stream-and-referee: the three-layer role_candidates / judge_results /
 polish_* field set is replaced by main_* (streaming reply) + referee_*
-(side-band decision) + first_audio_ms (latency monitoring).
+(gating decision) + first_audio_ms (latency monitoring).
 
 engine-multi-referee-and-restructure: the single referee_* fields are replaced
 by ``referee_results`` (JSONB array, one element per referee) + ``matched_rule``
@@ -58,7 +58,7 @@ class PipelineTrace(Base, TimestampMixin):
     # fallback was used (pipeline-remove-streaming-fallback removal trigger).
     main_fallback_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    # referee LLMs (N side-band judges run in parallel to main TTS playback).
+    # referee LLMs (N gating judges run in parallel to main TTS playback).
     # Each element: {label, category, confidence, duration_ms}; category carries
     # the referee prompt's enum value or a fail-open marker ("timeout"/"invalid").
     referee_results: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)

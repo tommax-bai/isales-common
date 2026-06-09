@@ -5,7 +5,7 @@ PolishSpec / PipelineConfig`` three-layer dataclasses. The pipeline now has
 exactly three slots:
 
 - ``main``     — streaming text reply (``chat_stream``), drives TTS directly.
-- ``referee``  — side-band enum decision (``chat`` json_mode), parallel to TTS.
+- ``referee``  — bare category-token decision (``chat`` plain-text), parallel to TTS.
 - ``extractor``— post-call structured extraction, run offline by the worker.
 
 These are the shared data contract. Per-call rendering inputs (lead info,
@@ -36,7 +36,7 @@ class MainSpec(_SlotSpec):
 
 
 class RefereeSpec(_SlotSpec):
-    """A single referee side-band LLM slot (category-decision JSON).
+    """A single referee gating LLM slot (bare category-token decision).
 
     engine-multi-referee-and-restructure: ``label`` is the stable id routing
     rules bind to. The referee's category enum semantics live in its prompt;

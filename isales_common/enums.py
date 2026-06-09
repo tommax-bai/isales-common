@@ -25,7 +25,7 @@ class CallStatus(StrEnum):
 
 # pipeline-stream-and-referee: three-layer PK/judge/polish replaced by the
 # voxen-style dual-LLM architecture. main = streaming text reply, referee =
-# side-band enum decision, extractor = post-call structured extraction.
+# gating enum decision, extractor = post-call structured extraction.
 # engine-multi-referee-and-restructure: referee may now be configured N rows
 # per campaign (each with its own prompt + enum semantics); restructure is a
 # new optional slot that re-voices the last reply / barge-in remainder.
