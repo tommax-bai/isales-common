@@ -12,7 +12,7 @@ from isales_common.models.callback_log import CallbackLog
 from isales_common.models.campaign import Campaign
 from isales_common.models.device import Device
 from isales_common.models.device_relations import CampaignDevice, DeviceSimBinding
-from isales_common.models.filler import FillerPhrase, FillerSet
+from isales_common.models.filler import FillerPhrase
 from isales_common.models.handoff_task import HandoffTask
 from isales_common.models.holiday import Holiday
 from isales_common.models.lead import Lead
@@ -36,7 +36,6 @@ __all__ = [
     "Device",
     "DeviceSimBinding",
     "FillerPhrase",
-    "FillerSet",
     "HandoffTask",
     "Holiday",
     "Lead",

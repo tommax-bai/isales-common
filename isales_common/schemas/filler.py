@@ -1,6 +1,7 @@
-"""DTOs for filler_set + filler_phrase.
+"""DTOs for filler_phrase.
 
-Spec: filler for selection rules.
+Spec: filler for selection rules. A campaign owns a single flat pool of filler
+phrases (no ``filler_set`` grouping layer post-``filler-single-pool``).
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ class FillerPhraseBase(AppModel):
 
 
 class FillerPhraseCreate(FillerPhraseBase):
-    filler_set_id: int
+    campaign_id: int
 
 
 class FillerPhraseUpdate(AppModel):
@@ -30,28 +31,7 @@ class FillerPhraseUpdate(AppModel):
 
 class FillerPhraseRead(FillerPhraseBase, ORMModel):
     id: int
-    filler_set_id: int
-    generation_status: GenerationStatus
-    created_at: datetime
-    updated_at: datetime
-
-
-class FillerSetBase(AppModel):
     campaign_id: int
-    name: str = Field(min_length=1, max_length=128)
-    sort_order: int = 0
-
-
-class FillerSetCreate(FillerSetBase):
-    pass
-
-
-class FillerSetUpdate(AppModel):
-    name: str | None = None
-    sort_order: int | None = None
-
-
-class FillerSetRead(FillerSetBase, ORMModel):
-    id: int
+    generation_status: GenerationStatus
     created_at: datetime
     updated_at: datetime
