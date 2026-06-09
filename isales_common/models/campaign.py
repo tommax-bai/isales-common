@@ -92,6 +92,12 @@ class Campaign(Base, TimestampMixin):
     # turns).
     filler_delay_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # filler phrases — a flat per-campaign pool stored as a JSONB list[str]
+    # (filler-campaign-column), same pattern as silence_phrases /
+    # interruption_whitelist. Replaces the old filler_phrase table; the engine
+    # picks one at random without repeating within a call.
+    filler_phrases: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+
     # asr endpoint silence threshold (pipeline-latency-tail § A). NULL →
     # load_runtime_config uses the system default (400ms) for the ASR EOS
     # stable-silence window; lower = faster open but more likely to clip a

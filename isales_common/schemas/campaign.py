@@ -68,6 +68,10 @@ class CampaignBase(AppModel):
     # 600ms. Only play a filler when first audio hasn't started within this.
     filler_delay_ms: int | None = None
 
+    # filler phrases — flat per-campaign pool (filler-campaign-column), edited as
+    # a semicolon-separated input like interruption_whitelist.
+    filler_phrases: list[str] = Field(default_factory=list)
+
     # asr endpoint silence threshold (pipeline-latency-tail § A). NULL → engine
     # default 400ms.
     asr_eos_silence_ms: int | None = None
@@ -135,6 +139,7 @@ class CampaignUpdate(AppModel):
     max_no_progress_seconds: int | None = None
     asr_eos_silence_ms: int | None = None
     filler_delay_ms: int | None = None
+    filler_phrases: list[str] | None = None
     wrap_up_max_rounds: int | None = None
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None

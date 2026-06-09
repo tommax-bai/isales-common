@@ -180,6 +180,7 @@ class TestCampaignSchemas:
             filler_enabled=False,
             asr_eos_silence_ms=250,
             filler_delay_ms=500,
+            filler_phrases=[],
             routing_rules=[],
             max_continuous_restructure=2,
             tools={},
