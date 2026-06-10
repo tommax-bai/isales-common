@@ -83,6 +83,9 @@ class CampaignBase(AppModel):
     interruption_rules: InterruptionRule | None = None
     interruption_whitelist: list[str] = Field(default_factory=list)
     interruption_min_duration_ms: int = Field(ge=0)
+    # min rune count for the NULL-rule default tree's length leaf; default 2 keeps
+    # legacy behavior byte-for-byte. Only read by engine when interruption_rules is NULL.
+    interruption_min_chars: int = Field(default=2, ge=1)
     max_continuous_interruptions: int = Field(ge=0)
     continuous_interruption_strategy: ContinuousInterruptionStrategy
 
@@ -145,6 +148,7 @@ class CampaignUpdate(AppModel):
     interruption_rules: InterruptionRule | None = None
     interruption_whitelist: list[str] | None = None
     interruption_min_duration_ms: int | None = None
+    interruption_min_chars: int | None = Field(default=None, ge=1)
     max_continuous_interruptions: int | None = None
     continuous_interruption_strategy: ContinuousInterruptionStrategy | None = None
     transfer_keyword_enabled: bool | None = None

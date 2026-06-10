@@ -113,6 +113,12 @@ class Campaign(Base, TimestampMixin):
     interruption_rules: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     interruption_whitelist: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     interruption_min_duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=400)
+    # min rune count for the NULL-rule default tree's length leaf (promoted from
+    # the engine's historical hardcoded default_rule(min_text_length=2); only read
+    # when interruption_rules is NULL). server_default backfills existing rows.
+    interruption_min_chars: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="2", default=2
+    )
     max_continuous_interruptions: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
     continuous_interruption_strategy: Mapped[ContinuousInterruptionStrategy] = mapped_column(
         String(16), nullable=False, default=ContinuousInterruptionStrategy.SHORT_REPLY
