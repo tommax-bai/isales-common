@@ -40,7 +40,6 @@ class Campaign(Base, TimestampMixin):
     silence_threshold_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=3000)
     silence_phrases: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     silence_hangup_phrase: Mapped[str | None] = mapped_column(String(512), nullable=True)
-    max_no_progress_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # multi-referee routing (engine-multi-referee-and-restructure D3). Ordered
     # list of rules, each {referee: <label>, match: [<category>...], action: {...}}.

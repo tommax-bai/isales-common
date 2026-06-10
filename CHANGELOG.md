@@ -4,6 +4,19 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.8.6] — 2026-06-10
+
+### Removed (BREAKING)
+
+- **`campaign.max_no_progress_seconds` 字段下线**（change
+  `silence-drop-no-progress-timeout`）。删除模型列 + `CampaignBase` /
+  `CampaignUpdate` schema 字段，alembic 迁移 `d5e6f7a8b9c0` DROP COLUMN
+  `campaign.max_no_progress_seconds`（nullable、生产恒 NULL，drop 非破坏）。
+  独立的秒级「无进展超时」计时器与「沉默超限挂断」（`max_silence_activations`
+  + `silence_threshold_ms` + `silence_hangup_phrase` → `silence_max_reached`）
+  重复且误导，统一收口到沉默超限一条路径。`HangupCause.NO_PROGRESS_TIMEOUT`
+  枚举**保留**（仍是 engine / worker 内部异常兜底 cause + 历史行）。
+
 ## [v0.8.5] — 2026-06-09
 
 ### Removed (BREAKING)

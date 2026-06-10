@@ -49,7 +49,6 @@ class CampaignBase(AppModel):
     silence_threshold_ms: int = Field(ge=0)
     silence_phrases: list[str] = Field(default_factory=list)
     silence_hangup_phrase: str | None = None
-    max_no_progress_seconds: int | None = None
 
     # wrap-up
     wrap_up_max_rounds: int = Field(ge=0)
@@ -136,7 +135,6 @@ class CampaignUpdate(AppModel):
     silence_threshold_ms: int | None = None
     silence_phrases: list[str] | None = None
     silence_hangup_phrase: str | None = None
-    max_no_progress_seconds: int | None = None
     asr_eos_silence_ms: int | None = None
     filler_delay_ms: int | None = None
     filler_phrases: list[str] | None = None
