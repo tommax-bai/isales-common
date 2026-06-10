@@ -102,6 +102,31 @@ class HangupEvent(_BaseEvent):
     initiated_by: Literal["user", "ai"]
 
 
+class StateWarningEvent(_BaseEvent):
+    """Advisory warning written when a state transition falls outside
+    ``LEGAL_TRANSITIONS``. See call-state-machine spec § "非法 transition 改
+    advisory 警告". Current event name written by the engine.
+    """
+
+    type: Literal["state_warning"] = "state_warning"
+    attempted: str
+    from_state: str
+    to_state: str
+
+
+class StateErrorEvent(_BaseEvent):
+    """Historical event name (written by ``transition_to`` before the
+    soften-guard change, on a real IllegalTransition). New calls no longer
+    produce it, but historical DB rows may still contain it — consumers MUST
+    be able to parse it (call-state-machine spec § "state_error 事件名迁移").
+    """
+
+    type: Literal["state_error"] = "state_error"
+    attempted: str
+    from_state: str
+    to_state: str
+
+
 TranscriptEvent = Annotated[
     GreetingEvent
     | UserSpeechEvent
@@ -115,6 +140,8 @@ TranscriptEvent = Annotated[
     | GoalAchievedEvent
     | WrapUpStartedEvent
     | WrapUpCompletedEvent
-    | HangupEvent,
+    | HangupEvent
+    | StateWarningEvent
+    | StateErrorEvent,
     Field(discriminator="type"),
 ]
