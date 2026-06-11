@@ -48,10 +48,7 @@ ENV_KEY_MAP: dict[str, tuple[str, str]] = {
     # ASR V3 SAUC resource id (volc.bigasr.sauc.duration / .concurrent /
     # volc.seedasr.sauc.duration / .concurrent). 跨 grant 切版本走这里.
     "ISALES_VOLCENGINE_ASR_RESOURCE_ID": ("volcengine", "asr_resource_id"),
-    "ISALES_OPENAI_API_KEY": ("openai", "api_key"),
-    "ISALES_OPENAI_BASE_URL": ("openai", "endpoint"),
     "ISALES_VOLCENGINE_LLM_MODEL": ("volcengine", "default_model"),
-    "ISALES_OPENAI_LLM_MODEL": ("openai", "default_model"),
     "ISALES_VOLCENGINE_ASR_ENDPOINT": ("volcengine", "asr_endpoint"),
     "ISALES_VOLCENGINE_TTS_ENDPOINT": ("volcengine", "tts_endpoint"),
     "ISALES_DASHSCOPE_API_KEY": ("dashscope", "api_key"),

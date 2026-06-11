@@ -21,7 +21,7 @@ import httpx
 class ProviderError(Exception):
     """Base class for all provider-side failures.
 
-    The ``provider`` field identifies the implementation (e.g. ``"openai"``);
+    The ``provider`` field identifies the implementation (e.g. ``"volcengine"``);
     ``vendor_code`` carries the original error code if available, for logging.
     """
 

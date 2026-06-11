@@ -52,17 +52,17 @@ class TestStoreInMemory:
         s = CredentialStore(
             {
                 "volcengine": {"app_key": "vc-key", "app_token": "vc-tok"},
-                "openai": {"api_key": "sk-test"},
+                "dashscope": {"api_key": "sk-test"},
             }
         )
         assert s.get("volcengine", "app_key") == "vc-key"
         assert s.get("volcengine", "app_token") == "vc-tok"
-        assert s.get("openai", "api_key") == "sk-test"
-        assert s.get("openai", "missing") is None
+        assert s.get("dashscope", "api_key") == "sk-test"
+        assert s.get("dashscope", "missing") is None
         assert s.get("unknown_provider", "any") is None
         assert s.has("volcengine") is True
         assert s.has("unknown_provider") is False
-        assert set(s.providers()) == {"volcengine", "openai"}
+        assert set(s.providers()) == {"volcengine", "dashscope"}
         assert set(s.fields("volcengine")) == {"app_key", "app_token"}
         assert s.row_count() == 3
 

@@ -58,10 +58,6 @@ class TestKeyMap:
         assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_KEY"] == ("volcengine", "app_key")
         assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_TOKEN"] == ("volcengine", "app_token")
 
-    def test_openai_keys_present(self):
-        assert ENV_KEY_MAP["ISALES_OPENAI_API_KEY"] == ("openai", "api_key")
-        assert ENV_KEY_MAP["ISALES_OPENAI_BASE_URL"] == ("openai", "endpoint")
-
     def test_dashscope_keys_present(self):
         assert ENV_KEY_MAP["ISALES_DASHSCOPE_API_KEY"] == ("dashscope", "api_key")
 
