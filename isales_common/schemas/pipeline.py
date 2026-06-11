@@ -26,6 +26,10 @@ class _SlotSpec(AppModel):
     role_config_id: int
     prompt_version_id: int
     system_prompt: str
+    # per-role-llm-config-and-restructure-card: the slot's LLM provider (SSOT =
+    # role_config.ext_params["provider"]). None → engine falls back to the single
+    # global engine_llm_provider. ``model`` is the role_config.model column.
+    provider: str | None = None
     model: str = "mock"
     temperature: float = 1.0
     top_p: float = 1.0
@@ -47,9 +51,15 @@ class RefereeSpec(_SlotSpec):
 
 
 class RestructureSpec(_SlotSpec):
-    """Restructure / rewrite LLM slot — re-voices InterruptText (D4)."""
+    """Restructure / rewrite LLM slot — re-voices InterruptText (D4).
 
-    label: str
+    per-role-llm-config-and-restructure-card: restructure is a singleton slot
+    selected via the builtin ``restructure`` route (not by label), so ``label``
+    is optional — the engine takes the first ``kind=restructure`` role_config and
+    never routes to it by name.
+    """
+
+    label: str | None = None
 
 
 class PersonaSpec(_SlotSpec):
