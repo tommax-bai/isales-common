@@ -68,6 +68,25 @@ def test_routing_action_route_and_tool():
         adapter.validate_python({"type": "route", "to": "p1", "then_state": "BOGUS"})
 
 
+def test_route_closing_carries_goal_type():
+    # fix-goal-achievement-pipeline: route:closing carries goal_type (modern form
+    # of transition:goal_achieved), so the goal_achieved event records a label.
+    adapter = TypeAdapter(RoutingAction)
+    r = adapter.validate_python(
+        {"type": "route", "to": "closing", "then_state": "WRAPPING_UP",
+         "goal_type": "intent_confirmed"}
+    )
+    assert isinstance(r, RoutePersonaAction)
+    assert r.goal_type == "intent_confirmed"
+
+
+def test_route_goal_type_rejected_for_non_closing():
+    # goal_type only valid on the builtin closing route — forbidden on personas.
+    adapter = TypeAdapter(RoutingAction)
+    with pytest.raises(ValidationError):
+        adapter.validate_python({"type": "route", "to": "p1", "goal_type": "x"})
+
+
 def test_routing_rule_with_tool_action():
     rule = RoutingRule.model_validate(
         {

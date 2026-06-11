@@ -77,11 +77,28 @@ class RoutePersonaAction(AppModel):
     (``closing`` / ``recovery`` / ``restructure``). The persona-label existence
     check is done at the api layer (422 routing_rule_unknown_persona); this
     schema only enforces shape.
+
+    ``goal_type`` carries the goal label the worker records when this route fires
+    the goal-achieved ``closing`` route — the modern form of what legacy
+    ``TransitionAction.goal_type`` did for ``transition to=goal_achieved`` (goal-
+    achievement spec § "route 与 transition 动作的 goal_type 提取对称"). Only
+    meaningful for the builtin ``closing`` route; MUST be null for personas and
+    the other builtin routes.
     """
 
     type: Literal["route"] = "route"
     to: str = Field(min_length=1, max_length=64, description="persona label or builtin route")
     then_state: ThenState | None = None
+    goal_type: str | None = Field(
+        default=None, max_length=64,
+        description="goal label recorded on the goal_achieved event; only valid when to='closing'",
+    )
+
+    @model_validator(mode="after")
+    def _goal_type_only_for_closing(self) -> RoutePersonaAction:
+        if self.to != "closing" and self.goal_type is not None:
+            raise ValueError("goal_type is only valid when to='closing'")
+        return self
 
 
 class RouteToolAction(AppModel):
