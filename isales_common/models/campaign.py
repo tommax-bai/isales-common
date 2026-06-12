@@ -53,6 +53,15 @@ class Campaign(Base, TimestampMixin):
     # restructure turns before falling back to default_replies / continuous-
     # interruption handling, so the AI doesn't sound like it's on repeat.
     max_continuous_restructure: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
+    # auto_restructure_on_interrupt (engine-auto-restructure-on-interrupt). When ON,
+    # the decider's no-explicit-rule-match fallback on a barge-in-interrupted turn
+    # (session.interrupt_remaining_text set) becomes restructure(interrupt_remaining)
+    # instead of continue — i.e. resume the cut-off line when no routing rule vetoed.
+    # referee + explicit rules stay the veto (first-match-wins). Off by default →
+    # behavior unchanged. See ai-pipeline § 被打断自动重组开关.
+    auto_restructure_on_interrupt: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
 
     # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
     # {type: hangup|transfer, ...} discriminated union (schemas.jsonb.tool_config);

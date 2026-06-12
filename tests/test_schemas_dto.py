@@ -177,6 +177,7 @@ class TestCampaignSchemas:
             filler_phrases=[],
             routing_rules=[],
             max_continuous_restructure=2,
+            auto_restructure_on_interrupt=False,
             tools={},
             persona_fanout_cap=1,
             referee_timeout_ms=600,

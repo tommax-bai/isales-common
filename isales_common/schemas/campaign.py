@@ -34,6 +34,10 @@ class CampaignBase(AppModel):
     # multi-referee routing (engine-multi-referee-and-restructure D3/D4/D5).
     routing_rules: list[RoutingRule] = Field(default_factory=list)
     max_continuous_restructure: int = Field(default=2, ge=0)
+    # auto_restructure_on_interrupt (engine-auto-restructure-on-interrupt): when ON,
+    # a barge-in-interrupted turn with no explicit routing-rule match resumes the
+    # cut-off line (restructure) instead of replying. Off by default.
+    auto_restructure_on_interrupt: bool = False
 
     # gating + multi-persona (engine-tools-multidialogue-gating). tools: alias →
     # hangup/transfer config; persona_fanout_cap: total speculative routes incl
@@ -130,6 +134,7 @@ class CampaignUpdate(AppModel):
     extraction_fields: list[ExtractionField] | None = None
     routing_rules: list[RoutingRule] | None = None
     max_continuous_restructure: int | None = Field(default=None, ge=0)
+    auto_restructure_on_interrupt: bool | None = None
     tools: dict[str, ToolConfig] | None = None
     persona_fanout_cap: int | None = Field(default=None, ge=1, le=3)
     referee_timeout_ms: int | None = Field(default=None, gt=0)
