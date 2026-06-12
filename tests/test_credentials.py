@@ -67,6 +67,31 @@ class TestStoreInMemory:
         assert s.row_count() == 3
 
 
+class TestLLMSpeechProviderIsolation:
+    """split-model-and-speech-provider-config: 火山方舟 Ark LLM (volcengine)
+    与豆包语音 (volcengine_speech) 是两个独立 provider_id, 同名字段
+    (api_key) 互不串读。"""
+
+    def test_volcengine_llm_vs_speech_api_key_independent(self):
+        s = CredentialStore(
+            {
+                "volcengine": {"api_key": "ark-llm-key", "default_model": "ep-xxx"},
+                "volcengine_speech": {
+                    "api_key": "speech-xapi-key",
+                    "app_key": "spk",
+                    "app_token": "stok",
+                },
+            }
+        )
+        # LLM 读 volcengine.api_key = ark key, 绝不串到语音的 X-Api-Key。
+        assert s.get("volcengine", "api_key") == "ark-llm-key"
+        assert s.get("volcengine_speech", "api_key") == "speech-xapi-key"
+        # 语音 app_token 不会出现在 LLM provider 下 (旧 bug: build_llm 误读 app_token)。
+        assert s.get("volcengine", "app_token") is None
+        assert s.get("volcengine_speech", "app_token") == "stok"
+        assert set(s.providers()) == {"volcengine", "volcengine_speech"}
+
+
 class TestEncryptDecryptWrapping:
     def test_static_round_trip(self, fernet_key):
         cipher = CredentialStore.encrypt("plaintext")

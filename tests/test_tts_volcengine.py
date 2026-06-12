@@ -164,15 +164,19 @@ async def test_aclose_releases_client() -> None:
 # ---- build_volcengine_tts (shared constructor) ----------------------------
 
 
+# 凭据读自 volcengine_speech (split-model-and-speech-provider-config: 火山方舟
+# Ark LLM 与豆包语音两条产品线两套密钥, build_volcengine_tts 只读语音 id)。
 def test_build_new_console_api_key() -> None:
-    store = CredentialStore({"volcengine": {"api_key": "uuid-key"}})
+    store = CredentialStore({"volcengine_speech": {"api_key": "uuid-key"}})
     provider = build_volcengine_tts(store)
     assert isinstance(provider, VolcengineTTSProvider)
     assert provider._api_key == "uuid-key"
 
 
 def test_build_legacy_app_key_token() -> None:
-    store = CredentialStore({"volcengine": {"app_key": "k", "app_token": "t"}})
+    store = CredentialStore(
+        {"volcengine_speech": {"app_key": "k", "app_token": "t"}}
+    )
     provider = build_volcengine_tts(store)
     assert isinstance(provider, VolcengineTTSProvider)
     assert provider._app_id == "k"
@@ -186,9 +190,17 @@ def test_build_missing_credentials_raises_invalid_request() -> None:
         build_volcengine_tts(CredentialStore())
 
 
+def test_build_ignores_volcengine_llm_credentials() -> None:
+    """volcengine (Ark LLM) 的 api_key 是 ark key, 绝不能被语音 TTS 读到 —— 只
+    配 volcengine 没配 volcengine_speech 时, TTS 应报 not configured。"""
+    store = CredentialStore({"volcengine": {"api_key": "ark-llm-key"}})
+    with pytest.raises(ProviderInvalidRequest, match="not configured"):
+        build_volcengine_tts(store)
+
+
 def test_build_resource_id_override() -> None:
     store = CredentialStore(
-        {"volcengine": {"api_key": "k", "tts_resource_id": "seed-icl-2.0"}}
+        {"volcengine_speech": {"api_key": "k", "tts_resource_id": "seed-icl-2.0"}}
     )
     provider = build_volcengine_tts(store)
     assert provider._resource_id == "seed-icl-2.0"

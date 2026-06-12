@@ -326,15 +326,22 @@ def build_volcengine_tts(store: CredentialStore) -> VolcengineTTSProvider:
     falls back to the legacy ``app_key`` + ``app_token`` 三元组.
     ``tts_resource_id`` selects the model SKU (default seed-tts-2.0).
 
+    凭据读自 ``volcengine_speech`` provider_id —— 火山方舟 Ark LLM 与豆包语音
+    是两条产品线两套密钥, split-model-and-speech-provider-config 把语音密钥
+    从 `volcengine` 拆到 `volcengine_speech`,本函数只读语音凭据,绝不读
+    `volcengine` (那是 ark LLM key)。
+
     Raises ``ProviderInvalidRequest`` when neither credential set is
     configured (so callers surface a 4xx, not a 500).
     """
-    api_key = store.get("volcengine", "api_key")
-    resource_id = store.get("volcengine", "tts_resource_id") or DEFAULT_RESOURCE_ID
+    api_key = store.get("volcengine_speech", "api_key")
+    resource_id = (
+        store.get("volcengine_speech", "tts_resource_id") or DEFAULT_RESOURCE_ID
+    )
     if api_key:
         return VolcengineTTSProvider(api_key=api_key, resource_id=resource_id)
-    app_key = store.get("volcengine", "app_key")
-    app_token = store.get("volcengine", "app_token")
+    app_key = store.get("volcengine_speech", "app_key")
+    app_token = store.get("volcengine_speech", "app_token")
     if app_key and app_token:
         return VolcengineTTSProvider(
             app_id=app_key,
@@ -342,7 +349,8 @@ def build_volcengine_tts(store: CredentialStore) -> VolcengineTTSProvider:
             resource_id=resource_id,
         )
     raise ProviderInvalidRequest(
-        "volcengine TTS credential not configured: need api_key (X-Api-Key) "
-        "or app_key + app_token (legacy console)",
+        "volcengine_speech TTS credential not configured: need "
+        "volcengine_speech.api_key (X-Api-Key) or app_key + app_token "
+        "(legacy console)",
         provider="volcengine_tts",
     )

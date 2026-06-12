@@ -10,6 +10,7 @@ from pathlib import Path
 from isales_common.cli.cred_migrate import (
     ENV_KEY_MAP,
     REVERSE_KEY_MAP,
+    SPEECH_FIELDS,
     parse_env_file,
 )
 
@@ -54,9 +55,42 @@ class TestParseEnvFile:
 
 
 class TestKeyMap:
-    def test_volcengine_keys_present(self):
-        assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_KEY"] == ("volcengine", "app_key")
-        assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_TOKEN"] == ("volcengine", "app_token")
+    def test_volcengine_llm_keys_present(self):
+        # split-model-and-speech-provider-config: volcengine = 火山方舟 Ark LLM,
+        # 其 api_key 是 ark key (非语音 X-Api-Key)。
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_API_KEY"] == ("volcengine", "api_key")
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_LLM_MODEL"] == (
+            "volcengine",
+            "default_model",
+        )
+
+    def test_volcengine_speech_keys_present(self):
+        # 语音密钥归 volcengine_speech provider_id, 与 LLM 互不串。
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_SPEECH_API_KEY"] == (
+            "volcengine_speech",
+            "api_key",
+        )
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_KEY"] == (
+            "volcengine_speech",
+            "app_key",
+        )
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_APP_TOKEN"] == (
+            "volcengine_speech",
+            "app_token",
+        )
+        assert ENV_KEY_MAP["ISALES_VOLCENGINE_TTS_RESOURCE_ID"] == (
+            "volcengine_speech",
+            "tts_resource_id",
+        )
+
+    def test_llm_and_speech_api_key_are_distinct_providers(self):
+        # 两条产品线两套密钥: 同 field_name=api_key 但不同 provider_id。
+        llm = ENV_KEY_MAP["ISALES_VOLCENGINE_API_KEY"]
+        speech = ENV_KEY_MAP["ISALES_VOLCENGINE_SPEECH_API_KEY"]
+        assert llm[1] == speech[1] == "api_key"
+        assert llm[0] == "volcengine"
+        assert speech[0] == "volcengine_speech"
+        assert llm != speech
 
     def test_dashscope_keys_present(self):
         assert ENV_KEY_MAP["ISALES_DASHSCOPE_API_KEY"] == ("dashscope", "api_key")
@@ -70,3 +104,24 @@ class TestKeyMap:
         # REVERSE_KEY_MAP 会丢失。
         destinations = list(ENV_KEY_MAP.values())
         assert len(destinations) == len(set(destinations))
+
+
+class TestSpeechFields:
+    def test_speech_fields_cover_migrated_columns(self):
+        # split-speech 搬运的语音字段全集 (provider_id 改写, cipher 不动)。
+        assert SPEECH_FIELDS == frozenset(
+            {
+                "api_key",
+                "app_key",
+                "app_token",
+                "tts_resource_id",
+                "asr_resource_id",
+                "asr_endpoint",
+                "tts_endpoint",
+            }
+        )
+
+    def test_speech_fields_exclude_llm_only_columns(self):
+        # endpoint / default_model 属火山方舟 Ark LLM, MUST NOT 被搬到语音。
+        assert "endpoint" not in SPEECH_FIELDS
+        assert "default_model" not in SPEECH_FIELDS
