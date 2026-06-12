@@ -152,12 +152,5 @@ class Campaign(Base, TimestampMixin):
     follow_up_interval_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
     follow_up_max_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    # do-not-call (under retry-followup)
-    do_not_call_keywords: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
-    do_not_call_llm_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    do_not_call_llm_prompt_version_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("prompt_version.id", use_alter=True), nullable=True
-    )
-
     # time-window
     respect_holidays: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

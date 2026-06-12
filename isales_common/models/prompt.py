@@ -21,8 +21,8 @@ class PromptVersion(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
 
     scope_type: Mapped[PromptScopeType] = mapped_column(String(16), nullable=False, index=True)
-    # No FK: scope can be a role_config id, a campaign id (for transfer_llm /
-    # do_not_call_llm), or a global default — resolved by scope_type at app layer.
+    # No FK: scope can be a role_config id, a campaign id (for transfer_llm),
+    # or a global default — resolved by scope_type at app layer.
     scope_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
 
     content: Mapped[str] = mapped_column(Text, nullable=False)

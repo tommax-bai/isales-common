@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "isales-common"
-version = "0.8.13"
+version = "0.8.14"
 description = "Shared models, schemas, AI provider ABCs, message contracts, cloud-edge transport ABCs, and utilities for the iSales platform"
 readme = "README.md"
 requires-python = ">=3.11"

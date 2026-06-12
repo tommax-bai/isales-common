@@ -103,9 +103,6 @@ def _campaign_kwargs() -> dict:
         "retry_max_count": 3,
         "follow_up_interval_days": None,
         "follow_up_max_count": 0,
-        "do_not_call_keywords": ["不要打"],
-        "do_not_call_llm_enabled": False,
-        "do_not_call_llm_prompt_version_id": None,
         "respect_holidays": True,
     }
 
@@ -167,9 +164,6 @@ class TestCampaignSchemas:
             retry_max_count=0,
             follow_up_interval_days=None,
             follow_up_max_count=0,
-            do_not_call_keywords=[],
-            do_not_call_llm_enabled=False,
-            do_not_call_llm_prompt_version_id=None,
             respect_holidays=True,
             filler_enabled=False,
             asr_eos_silence_ms=250,

@@ -110,11 +110,6 @@ class CampaignBase(AppModel):
     follow_up_interval_days: int | None = None
     follow_up_max_count: int = Field(ge=0)
 
-    # do-not-call
-    do_not_call_keywords: list[str] = Field(default_factory=list)
-    do_not_call_llm_enabled: bool
-    do_not_call_llm_prompt_version_id: int | None = None
-
     # time-window
     respect_holidays: bool
 
@@ -169,9 +164,6 @@ class CampaignUpdate(AppModel):
     retry_max_count: int | None = None
     follow_up_interval_days: int | None = None
     follow_up_max_count: int | None = None
-    do_not_call_keywords: list[str] | None = None
-    do_not_call_llm_enabled: bool | None = None
-    do_not_call_llm_prompt_version_id: int | None = None
     respect_holidays: bool | None = None
 
 
