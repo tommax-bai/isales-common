@@ -20,7 +20,6 @@ from isales_common.schemas.jsonb.interruption_rule import (
 )
 from isales_common.schemas.jsonb.retry_policy import RetryPolicy
 from isales_common.schemas.jsonb.routing_rule import (
-    RestructureAction,
     RoutePersonaAction,
     RouteToolAction,
     RoutingAction,
@@ -75,7 +74,6 @@ __all__ = [
     "NotRule",
     "OrRule",
     "RegexRule",
-    "RestructureAction",
     "SplitByDelimiterRule",
     "validate_interruption_rule",
     "RetryPolicy",

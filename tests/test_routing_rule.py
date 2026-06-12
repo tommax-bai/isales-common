@@ -10,7 +10,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from isales_common.enums import PromptScopeType, RoleKind
 from isales_common.schemas.jsonb import (
-    RestructureAction,
+    RoutePersonaAction,
     RoutingRule,
     TransitionAction,
 )
@@ -44,11 +44,18 @@ def test_transition_action_goal_type_only_for_goal_achieved():
     assert TransitionAction(to="customer_decline").goal_type is None
 
 
-def test_restructure_action_source_enum():
-    assert RestructureAction(source="last_reply").type == "restructure"
-    assert RestructureAction(source="interrupt_remaining").source == "interrupt_remaining"
+def test_restructure_action_no_longer_valid():
+    # engine-auto-restructure-on-interrupt: the legacy restructure routing action
+    # was removed — restructure is reached only via the
+    # campaign.auto_restructure_on_interrupt switch, never a routing rule.
     with pytest.raises(ValidationError):
-        RestructureAction(source="low_confidence")  # internal-only, not configurable
+        RoutingRule.model_validate(
+            {
+                "referee": "intent",
+                "match": ["NEGATIVE"],
+                "action": {"type": "restructure", "source": "last_reply"},
+            }
+        )
 
 
 def test_routing_rule_discriminated_action():
@@ -56,10 +63,10 @@ def test_routing_rule_discriminated_action():
         {
             "referee": "intent",
             "match": ["NEGATIVE"],
-            "action": {"type": "restructure", "source": "last_reply"},
+            "action": {"type": "route", "to": "recovery"},
         }
     )
-    assert isinstance(r.action, RestructureAction)
+    assert isinstance(r.action, RoutePersonaAction)
 
     r2 = RoutingRule.model_validate(
         {
@@ -87,7 +94,7 @@ def test_routing_rules_list_roundtrip():
         {
             "referee": "intent",
             "match": ["NEGATIVE"],
-            "action": {"type": "restructure", "source": "last_reply"},
+            "action": {"type": "route", "to": "recovery"},
         },
     ]
     adapter = TypeAdapter(list[RoutingRule])

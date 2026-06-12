@@ -22,10 +22,6 @@ from isales_common.schemas._base import AppModel
 #: existing referee-driven transitions (goal-achievement / human-handoff specs).
 TransitionTarget = Literal["goal_achieved", "transfer", "customer_decline"]
 
-#: Where restructure draws its InterruptText from (D5): the last AI reply, or the
-#: text left unspoken when the user barged in.
-RestructureSource = Literal["last_reply", "interrupt_remaining"]
-
 #: State the StatusProjector projects after a route fires (engine-tools-
 #: multidialogue-gating). The side-effect a route DECLARES; routes never call
 #: transition_to directly. ai-pipeline § "SelectRouter 路由分发、开口前门控与
@@ -59,24 +55,19 @@ class TransitionAction(AppModel):
         return self
 
 
-class RestructureAction(AppModel):
-    """Switch to the restructure stream, re-voicing InterruptText.
-
-    Legacy action kind; equivalent to ``route`` with ``to='restructure'``. Kept
-    via the same removal-tracked shim as ``TransitionAction``.
-    """
-
-    type: Literal["restructure"] = "restructure"
-    source: RestructureSource
-
-
 class RoutePersonaAction(AppModel):
     """Route to a dialogue persona / builtin dialogue route (eager, gated).
 
     ``to`` is a campaign persona ``label`` or a builtin dialogue route
-    (``closing`` / ``recovery`` / ``restructure``). The persona-label existence
-    check is done at the api layer (422 routing_rule_unknown_persona); this
-    schema only enforces shape.
+    (``closing`` / ``recovery``). The persona-label existence check is done at
+    the api layer (422 routing_rule_unknown_persona); this schema only enforces
+    shape.
+
+    NOTE (engine-auto-restructure-on-interrupt): ``restructure`` is no longer a
+    routing action / route target. Restructure is now reached only via the
+    ``campaign.auto_restructure_on_interrupt`` switch (resume the cut-off line
+    after a trivial barge-in) — see ai-pipeline § 被打断自动重组开关. The api
+    rejects ``to='restructure'`` (routing_rule_unknown_persona).
 
     ``goal_type`` carries the goal label the worker records when this route fires
     the goal-achieved ``closing`` route — the modern form of what legacy
@@ -125,9 +116,12 @@ class RouteToolAction(AppModel):
     )
 
 
-# Discriminated by ``type``. Legacy transition/restructure kept (removal-tracked
-# shim); route/tool added by engine-tools-multidialogue-gating.
-RoutingAction = TransitionAction | RestructureAction | RoutePersonaAction | RouteToolAction
+# Discriminated by ``type``. Legacy transition kept (removal-tracked shim);
+# route/tool added by engine-tools-multidialogue-gating. The legacy
+# ``restructure`` action was removed (engine-auto-restructure-on-interrupt):
+# restructure is no longer a routing action — it is reached only via the
+# ``campaign.auto_restructure_on_interrupt`` switch.
+RoutingAction = TransitionAction | RoutePersonaAction | RouteToolAction
 
 
 class RoutingRule(AppModel):

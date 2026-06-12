@@ -54,7 +54,7 @@ def test_pipeline_config_roundtrip():
             RoutingRule(
                 referee="intent",
                 match=["NEGATIVE"],
-                action={"type": "restructure", "source": "last_reply"},
+                action={"type": "route", "to": "recovery"},
             ),
         ],
         max_continuous_restructure=3,
