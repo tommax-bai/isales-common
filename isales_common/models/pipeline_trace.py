@@ -52,6 +52,13 @@ class PipelineTrace(Base, TimestampMixin):
     # main LLM (streaming text reply, aggregated from sentence splitter output).
     main_reply_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     main_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # engine-turn-latency-and-tts-guard: fine-grained first-byte latency. With
+    # main_duration_ms (last token) + first_audio_ms (first PCM played) these
+    # decompose one turn's "LLM received → user playback" per node, so a slow
+    # first_audio_ms can be attributed to LLM TTFT vs TTS synth. Nullable:
+    # historic rows + fallback / no-token turns are NULL.
+    main_first_token_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    main_first_sentence_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     main_tokens_in: Mapped[int | None] = mapped_column(Integer, nullable=True)
     main_tokens_out: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # True when chat_stream failed mid-turn and the non-streaming chat() one-shot
