@@ -106,6 +106,14 @@ DEFAULT_SAMPLE_RATE = 16000
 
 DEFAULT_RESOURCE_ID = "seed-tts-2.0"
 
+# 情绪波动强度 (req_params.audio_params.emotion_scale). The vendor default for
+# the uranus_bigtts 多情感音色 is ~4 (高表现力), which makes prosody/语调 swing
+# a lot between independently-synthesized sentences — a visible contributor to
+# the cross-sentence 音色起伏 (each sentence is its own cold SSE request, so the
+# expressive contour is re-rolled per fragment). Dialing it down to 2 flattens
+# that swing for a steadier delivery. Tunable via the ``emotion_scale`` ctor arg.
+DEFAULT_EMOTION_SCALE = 2
+
 
 class VolcengineTTSProvider(TTSProvider):
     """Streaming TTS over the Volcengine 豆包 V3 SSE API.
@@ -128,6 +136,7 @@ class VolcengineTTSProvider(TTSProvider):
         resource_id: str = DEFAULT_RESOURCE_ID,
         sample_rate: int = DEFAULT_SAMPLE_RATE,
         audio_format: str = "pcm",
+        emotion_scale: int = DEFAULT_EMOTION_SCALE,
         timeout_s: float = DEFAULT_TIMEOUT_S,
         override_url: str | None = None,
     ) -> None:
@@ -142,6 +151,7 @@ class VolcengineTTSProvider(TTSProvider):
         self._resource_id = resource_id
         self._sample_rate = sample_rate
         self._audio_format = audio_format
+        self._emotion_scale = emotion_scale
         self._timeout_s = timeout_s
         self._url = override_url or V3_SSE_URL
         # Persistent client (pipeline-latency-tail § C): the V3 SSE service is
@@ -222,6 +232,8 @@ class VolcengineTTSProvider(TTSProvider):
                 "audio_params": {
                     "format": self._audio_format,
                     "sample_rate": self._sample_rate,
+                    # 降低情绪波动 (vendor 默认 ~4 偏高) → 减小逐句冷合成下的语调起伏
+                    "emotion_scale": self._emotion_scale,
                 },
             },
         }

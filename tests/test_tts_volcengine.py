@@ -84,6 +84,8 @@ async def test_request_payload_shape() -> None:
     assert seen["req_params"]["text"] == "您好"
     assert seen["req_params"]["speaker"] == "zh_female_test_uranus_bigtts"
     assert seen["req_params"]["audio_params"]["format"] == "pcm"
+    # 情绪波动强度默认 2 (降 vendor 默认 ~4)，注入 audio_params
+    assert seen["req_params"]["audio_params"]["emotion_scale"] == 2
 
 
 # ---- error mapping --------------------------------------------------------
