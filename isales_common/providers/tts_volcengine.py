@@ -106,6 +106,17 @@ DEFAULT_SAMPLE_RATE = 16000
 
 DEFAULT_RESOURCE_ID = "seed-tts-2.0"
 
+# 声音复刻 (ICL) 音色用独立的模型 SKU。火山把复刻音色的 speaker id 统一发成
+# ``S_`` 前缀，且这类 speaker 只在 ``seed-icl-*`` 资源下可用——拿复刻 speaker
+# 去请求 ``seed-tts-*`` 标准资源会被服务端拒成 "音色 ID 无效"。standard 与
+# icl 两条 SKU 在单次请求里互斥（一个 X-Api-Resource-Id 只能选一个），故按
+# speaker 前缀逐请求选择资源（见 ``_resource_for``），而不是把整个账号锁死在
+# 某一条线上。
+DEFAULT_ICL_RESOURCE_ID = "seed-icl-2.0"
+
+# 火山声音复刻 speaker id 的固定前缀。
+ICL_VOICE_PREFIX = "S_"
+
 # 情绪波动强度 (req_params.audio_params.emotion_scale). The vendor default for
 # the uranus_bigtts 多情感音色 is ~4 (高表现力), which makes prosody/语调 swing
 # a lot between independently-synthesized sentences — a visible contributor to
@@ -134,6 +145,7 @@ class VolcengineTTSProvider(TTSProvider):
         access_key: str | None = None,
         # Both modes share:
         resource_id: str = DEFAULT_RESOURCE_ID,
+        icl_resource_id: str = DEFAULT_ICL_RESOURCE_ID,
         sample_rate: int = DEFAULT_SAMPLE_RATE,
         audio_format: str = "pcm",
         emotion_scale: int = DEFAULT_EMOTION_SCALE,
@@ -149,6 +161,7 @@ class VolcengineTTSProvider(TTSProvider):
         self._app_id = app_id
         self._access_key = access_key
         self._resource_id = resource_id
+        self._icl_resource_id = icl_resource_id
         self._sample_rate = sample_rate
         self._audio_format = audio_format
         self._emotion_scale = emotion_scale
@@ -175,10 +188,23 @@ class VolcengineTTSProvider(TTSProvider):
         """Release the persistent HTTP client (provider 弃用 / 进程退出)."""
         await self._client.aclose()
 
-    def _headers(self) -> dict[str, str]:
+    def _resource_for(self, speaker: str) -> str:
+        """Pick the model SKU (X-Api-Resource-Id) by speaker family.
+
+        声音复刻 (ICL) speakers carry the vendor's ``S_`` prefix and only
+        resolve under the ``seed-icl-*`` resource; 预置/standard speakers
+        (xiaohe 等) resolve under ``seed-tts-*``. The two SKUs are mutually
+        exclusive per request, so route on the prefix instead of forcing the
+        whole account onto a single resource.
+        """
+        if speaker.startswith(ICL_VOICE_PREFIX):
+            return self._icl_resource_id
+        return self._resource_id
+
+    def _headers(self, speaker: str) -> dict[str, str]:
         common = {
             "Content-Type": "application/json",
-            "X-Api-Resource-Id": self._resource_id,
+            "X-Api-Resource-Id": self._resource_for(speaker),
             "X-Api-Request-Id": str(uuid.uuid4()),
         }
         if self._api_key:
@@ -241,7 +267,7 @@ class VolcengineTTSProvider(TTSProvider):
         first_byte_logged = False
 
         async with self._client.stream(
-            "POST", self._url, headers=self._headers(), json=payload
+            "POST", self._url, headers=self._headers(speaker), json=payload
         ) as response:
             if response.status_code >= 400:
                 body = await response.aread()
@@ -336,7 +362,9 @@ def build_volcengine_tts(store: CredentialStore) -> VolcengineTTSProvider:
     Single shared construction path for both isales-engine (``build_tts``)
     and isales-api (greeting 试听). New-console ``X-Api-Key`` is preferred;
     falls back to the legacy ``app_key`` + ``app_token`` 三元组.
-    ``tts_resource_id`` selects the model SKU (default seed-tts-2.0).
+    ``tts_resource_id`` selects the model SKU for 预置/standard voices
+    (default seed-tts-2.0); 声音复刻 voices (``S_`` 前缀的 speaker) are routed
+    to ``seed-icl-2.0`` automatically per request (see ``_resource_for``).
 
     凭据读自 ``volcengine_speech`` provider_id —— 火山方舟 Ark LLM 与豆包语音
     是两条产品线两套密钥, split-model-and-speech-provider-config 把语音密钥

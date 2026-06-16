@@ -88,6 +88,36 @@ async def test_request_payload_shape() -> None:
     assert seen["req_params"]["audio_params"]["emotion_scale"] == 2
 
 
+# ---- resource_id routing by speaker family --------------------------------
+
+
+async def test_standard_voice_uses_tts_resource_id() -> None:
+    """A 预置/standard speaker (no ``S_`` prefix) goes to the seed-tts SKU."""
+    seen: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["resource"] = request.headers["X-Api-Resource-Id"]
+        return httpx.Response(200, content=_sse(_audio_frame(b"\x00\x00"), _FINISH))
+
+    provider = _provider_with(handler)
+    [c async for c in provider.synthesize_stream("您好", "zh_female_xiaohe_uranus_bigtts")]
+    assert seen["resource"] == "seed-tts-2.0"
+
+
+async def test_cloned_voice_routes_to_icl_resource() -> None:
+    """A 声音复刻 speaker (``S_`` prefix) is routed to the seed-icl SKU even
+    though the standard resource_id stays seed-tts-2.0."""
+    seen: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["resource"] = request.headers["X-Api-Resource-Id"]
+        return httpx.Response(200, content=_sse(_audio_frame(b"\x00\x00"), _FINISH))
+
+    provider = _provider_with(handler)
+    [c async for c in provider.synthesize_stream("您好", "S_Are7Mp342")]
+    assert seen["resource"] == "seed-icl-2.0"
+
+
 # ---- error mapping --------------------------------------------------------
 
 
