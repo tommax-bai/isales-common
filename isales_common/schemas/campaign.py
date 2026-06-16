@@ -79,6 +79,13 @@ class CampaignBase(AppModel):
     # default 400ms.
     asr_eos_silence_ms: int | None = None
 
+    # ambient background mix (engine-ambient-background-mix). ambient_audio: a
+    # background-noise asset identifier; NULL/empty → off (outbound unchanged).
+    # ambient_gain: linear mix level for the background relative to TTS
+    # (0.1 ≈ -20dB), kept low to limit echo back into the caller's mic/ASR.
+    ambient_audio: str | None = Field(default=None, max_length=128)
+    ambient_gain: float = Field(default=0.1, ge=0.0, le=1.0)
+
     # interruption-detection
     # interruption_rules: composable barge-in rule tree (engine-interruption-rule-
     # tree). NULL → engine synthesizes a backward-compat default tree from
@@ -139,6 +146,8 @@ class CampaignUpdate(AppModel):
     silence_phrases: list[str] | None = None
     silence_hangup_phrase: str | None = None
     asr_eos_silence_ms: int | None = None
+    ambient_audio: str | None = Field(default=None, max_length=128)
+    ambient_gain: float | None = Field(default=None, ge=0.0, le=1.0)
     filler_delay_ms: int | None = None
     filler_phrases: list[str] | None = None
     wrap_up_max_rounds: int | None = None

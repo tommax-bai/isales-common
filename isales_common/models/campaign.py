@@ -112,6 +112,20 @@ class Campaign(Base, TimestampMixin):
     # hesitating caller's pause as "done".
     asr_eos_silence_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # ambient background mix (engine-ambient-background-mix). ambient_audio holds
+    # a preprocessed background-noise asset identifier (basename under the
+    # engine's ambient asset dir); NULL/empty → no background, the engine's
+    # outbound path stays the existing pull-driven direct-push (byte-identical to
+    # before this change). Non-empty → engine runs a continuous outbound mixing
+    # pump that loops the asset under the TTS so the customer hears a persistent
+    # room tone even between sentences. ambient_gain is the linear mix level for
+    # the background relative to TTS (0.1 ≈ -20dB); low by default to limit echo
+    # leaking back into the customer's mic / ASR. Default off via NULL asset.
+    ambient_audio: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    ambient_gain: Mapped[float] = mapped_column(
+        Float, nullable=False, server_default="0.1", default=0.1
+    )
+
     # interruption-detection
     # interruption_rules: composable barge-in rule tree (engine-interruption-rule-
     # tree, port of voxen core/interruption/). NULL → engine synthesizes a
