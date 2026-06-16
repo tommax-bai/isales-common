@@ -118,6 +118,22 @@ async def test_cloned_voice_routes_to_icl_resource() -> None:
     assert seen["resource"] == "seed-icl-2.0"
 
 
+async def test_cloned_voice_omits_emotion_scale() -> None:
+    """复刻音色 (``S_``) MUST NOT carry emotion_scale — that knob is tuned to
+    flatten the standard 多情感 voice and would over-suppress the clone.
+    Standard voices still carry it."""
+    seen: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.update(json.loads(request.content))
+        return httpx.Response(200, content=_sse(_audio_frame(b"\x00\x00"), _FINISH))
+
+    provider = _provider_with(handler)
+    [c async for c in provider.synthesize_stream("您好", "S_Are7Mp342")]
+    assert "emotion_scale" not in seen["req_params"]["audio_params"]
+    assert seen["req_params"]["audio_params"]["format"] == "pcm"
+
+
 # ---- error mapping --------------------------------------------------------
 
 

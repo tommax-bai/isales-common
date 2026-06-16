@@ -64,7 +64,7 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
@@ -201,6 +201,23 @@ class VolcengineTTSProvider(TTSProvider):
             return self._icl_resource_id
         return self._resource_id
 
+    def _audio_params(self, speaker: str) -> dict[str, Any]:
+        """Build req_params.audio_params, scoping emotion_scale by voice family.
+
+        ``emotion_scale`` 是为标准多情感音色 (uranus_bigtts, vendor 默认 ~4 偏
+        高) 专门下调到 2、去削平逐句冷合成的语调起伏的。声音复刻 (ICL) 音色
+        没有这层过度表现力，套上同一个低值反而把它压成平板/生硬，故复刻音色
+        (``S_`` 前缀) 不发该参数、让火山用复刻音色自身的自然默认值。与
+        ``_resource_for`` 同款按 speaker 家族分流。
+        """
+        params: dict[str, Any] = {
+            "format": self._audio_format,
+            "sample_rate": self._sample_rate,
+        }
+        if not speaker.startswith(ICL_VOICE_PREFIX):
+            params["emotion_scale"] = self._emotion_scale
+        return params
+
     def _headers(self, speaker: str) -> dict[str, str]:
         common = {
             "Content-Type": "application/json",
@@ -255,12 +272,7 @@ class VolcengineTTSProvider(TTSProvider):
             "req_params": {
                 "text": text,
                 "speaker": speaker,
-                "audio_params": {
-                    "format": self._audio_format,
-                    "sample_rate": self._sample_rate,
-                    # 降低情绪波动 (vendor 默认 ~4 偏高) → 减小逐句冷合成下的语调起伏
-                    "emotion_scale": self._emotion_scale,
-                },
+                "audio_params": self._audio_params(speaker),
             },
         }
         start = time.monotonic()
