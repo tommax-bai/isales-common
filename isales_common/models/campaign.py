@@ -89,6 +89,14 @@ class Campaign(Base, TimestampMixin):
     wrap_up_silence_hangup_ms: Mapped[int] = mapped_column(
         Integer, nullable=False, default=6000
     )
+    # engine-wrap-up-bypass-referee: opt-in. When true, a bypass (non-gating,
+    # parallel) wrap-up referee classifies the customer's post-farewell reply;
+    # if it has no substantive new question the engine hangs up early instead of
+    # dragging on to the counter cap. Default off → wrap-up unchanged (Slice-1
+    # silence hangup + counters only). Built-in prompt/categories live in engine.
+    wrap_up_referee_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
 
     # greeting (ai-pipeline § "开场白不走管线" — fixed-template branch).
     # NULL → load_runtime_config sets fixed_greeting=None → generate_greeting

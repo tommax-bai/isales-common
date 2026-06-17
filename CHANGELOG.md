@@ -4,6 +4,18 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.8.22] — 2026-06-17
+
+### Added
+
+- **`campaign.wrap_up_referee_enabled` 字段**（change
+  `engine-wrap-up-bypass-referee`）。Boolean NOT NULL server_default false，opt-in。
+  开启后收尾期对客户的开口回复跑一个旁路（非门控、并行）裁判，判「无实质新问题」
+  即提前主动挂断（复用 `tool:hangup → END`，reason=`wrap_up_referee_hangup`、复用
+  `HangupCause.REFEREE_HANGUP`）。裁判 prompt/类别为引擎内建常量（不进 routing_rules）。
+  默认 false → 收尾行为不变。alembic 迁移 `c4e6a8b0d2f3` ADD COLUMN（server_default
+  回填存量行，NOT NULL 安全）。
+
 ## [v0.8.21] — 2026-06-17
 
 ### Added

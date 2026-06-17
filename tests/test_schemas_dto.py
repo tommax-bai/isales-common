@@ -147,6 +147,7 @@ class TestCampaignSchemas:
             wrap_up_max_seconds=60,
             wrap_up_closing_phrases=[],
             wrap_up_silence_hangup_ms=6000,
+            wrap_up_referee_enabled=False,
             ambient_audio=None,
             ambient_gain=0.1,
             interruption_whitelist=[],
