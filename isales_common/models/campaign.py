@@ -159,6 +159,15 @@ class Campaign(Base, TimestampMixin):
         Integer, nullable=False, server_default="2", default=2
     )
     max_continuous_interruptions: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    # barge-in fade-out window (engine-barge-in-fade-out). After a barge-in the
+    # engine no longer hard-cuts the AI's voice to silence (an amplitude step at
+    # a frame boundary = audible click + a faster-than-human stop). Instead the
+    # still-buffered TTS is ramped down over this many ms so the voice trails off
+    # naturally. ~100ms reads as a human trail-off; 15-30ms only declicks; 0
+    # keeps the legacy hard cut. server_default backfills existing rows.
+    barge_in_fadeout_ms: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="100", default=100
+    )
     continuous_interruption_strategy: Mapped[ContinuousInterruptionStrategy] = mapped_column(
         String(16), nullable=False, default=ContinuousInterruptionStrategy.SHORT_REPLY
     )

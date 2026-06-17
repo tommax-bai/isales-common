@@ -103,6 +103,11 @@ class CampaignBase(AppModel):
     interruption_min_chars: int = Field(default=2, ge=1)
     max_continuous_interruptions: int = Field(ge=0)
     continuous_interruption_strategy: ContinuousInterruptionStrategy
+    # barge-in fade-out window in ms (engine-barge-in-fade-out). On a barge-in
+    # the still-buffered AI voice is ramped down over this window instead of
+    # hard-cut to silence. ~100ms = human trail-off; 15-30ms only declicks; 0 =
+    # legacy hard cut.
+    barge_in_fadeout_ms: int = Field(default=100, ge=0)
 
     # human-handoff
     transfer_keyword_enabled: bool
@@ -166,6 +171,7 @@ class CampaignUpdate(AppModel):
     interruption_min_chars: int | None = Field(default=None, ge=1)
     max_continuous_interruptions: int | None = None
     continuous_interruption_strategy: ContinuousInterruptionStrategy | None = None
+    barge_in_fadeout_ms: int | None = Field(default=None, ge=0)
     transfer_keyword_enabled: bool | None = None
     transfer_keywords: list[str] | None = None
     transfer_intent_enabled: bool | None = None
