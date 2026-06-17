@@ -58,6 +58,8 @@ class CampaignBase(AppModel):
     wrap_up_max_rounds: int = Field(ge=0)
     wrap_up_max_seconds: int = Field(ge=0)
     wrap_up_closing_phrases: list[str] = Field(default_factory=list)
+    # engine-wrap-up-silence-hangup: WRAPPING_UP-phase user-silence hangup window.
+    wrap_up_silence_hangup_ms: int = Field(default=6000, ge=0)
 
     # greeting (fixed-template branch of ai-pipeline § "开场白不走管线"). NULL
     # falls back to the LLM-generated greeting path.
@@ -153,6 +155,7 @@ class CampaignUpdate(AppModel):
     wrap_up_max_rounds: int | None = None
     wrap_up_max_seconds: int | None = None
     wrap_up_closing_phrases: list[str] | None = None
+    wrap_up_silence_hangup_ms: int | None = None
     greeting: str | None = None
     interruption_rules: InterruptionRule | None = None
     interruption_whitelist: list[str] | None = None

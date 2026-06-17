@@ -4,6 +4,19 @@ All notable changes to `isales-common` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.8.21] — 2026-06-17
+
+### Added
+
+- **`campaign.wrap_up_silence_hangup_ms` 字段**（change
+  `engine-wrap-up-silence-hangup`）。收尾（WRAPPING_UP）期客户静默主动挂断的时长
+  阈值，Integer NOT NULL server_default 6000。alembic 迁移 `b3d5f7a9c1e2`
+  ADD COLUMN（server_default 回填存量行，NOT NULL 安全；对在途通话无影响）。
+  收尾期客户静默达此时长 → engine 直接主动挂断，**跳过**「你好，还在么？」重新
+  激活阶梯（该阶梯仍为通话中段专用）。刻意配置为长于 `silence_threshold_ms`
+  （3000），给客户告别后留思考时间；`wrap_up_max_rounds` / `wrap_up_max_seconds`
+  计数器仍为硬上限兜底。
+
 ## [v0.8.6] — 2026-06-10
 
 ### Removed (BREAKING)

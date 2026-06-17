@@ -81,6 +81,14 @@ class Campaign(Base, TimestampMixin):
     wrap_up_max_rounds: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
     wrap_up_max_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
     wrap_up_closing_phrases: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    # engine-wrap-up-silence-hangup: WRAPPING_UP-phase user-silence hangup. After
+    # the farewell, if the customer stays silent this long the engine hangs up
+    # directly (NO "你好，还在么？" reactivation — that ladder is main-phase only).
+    # Deliberately longer than silence_threshold_ms (3000) to give the customer
+    # thinking time after the goodbye; the wrap_up counters remain the hard cap.
+    wrap_up_silence_hangup_ms: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=6000
+    )
 
     # greeting (ai-pipeline § "开场白不走管线" — fixed-template branch).
     # NULL → load_runtime_config sets fixed_greeting=None → generate_greeting
